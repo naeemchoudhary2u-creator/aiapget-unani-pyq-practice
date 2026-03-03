@@ -15,12 +15,14 @@ export function useRemoveQuestion() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["adminQuestions"] });
       queryClient.invalidateQueries({ queryKey: ["allQuestions"] });
+      queryClient.refetchQueries({ queryKey: ["adminQuestions"] });
+      queryClient.refetchQueries({ queryKey: ["allQuestions"] });
     },
   });
 }
 
 export function useGetAdminQuestions() {
-  const { actor, isFetching } = useActor();
+  const { actor } = useActor();
 
   return useQuery<BackendQuestion[]>({
     queryKey: ["adminQuestions"],
@@ -33,8 +35,9 @@ export function useGetAdminQuestions() {
         return [];
       }
     },
-    enabled: !!actor && !isFetching,
-    // Do not retry on error to avoid repeated unauthorized calls
+    enabled: !!actor,
+    staleTime: 0,
+    refetchOnMount: true,
     retry: false,
   });
 }
@@ -71,6 +74,8 @@ export function useAddQuestion() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["adminQuestions"] });
       queryClient.invalidateQueries({ queryKey: ["allQuestions"] });
+      queryClient.refetchQueries({ queryKey: ["adminQuestions"] });
+      queryClient.refetchQueries({ queryKey: ["allQuestions"] });
     },
   });
 }
@@ -105,7 +110,7 @@ function convertBackendQuestion(bq: BackendQuestion, index: number): Question {
  * with the static local questions, deduplicating by question text.
  */
 export function useAllQuestions() {
-  const { actor, isFetching } = useActor();
+  const { actor } = useActor();
 
   return useQuery<Question[]>({
     queryKey: ["allQuestions"],
@@ -128,7 +133,9 @@ export function useAllQuestions() {
         return staticQuestions;
       }
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor,
+    staleTime: 0,
+    refetchOnMount: true,
     retry: false,
   });
 }

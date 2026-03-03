@@ -38,7 +38,6 @@ export default function QuizScreen({
   );
   const [startTime] = useState(() => Date.now());
   const [timeRemaining, setTimeRemaining] = useState(TIMER_SECONDS);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const current = questions[currentIndex];
   const selectedAnswer = answers[currentIndex];
@@ -47,31 +46,45 @@ export default function QuizScreen({
   const progress =
     ((currentIndex + (isAnswered ? 1 : 0)) / questions.length) * 100;
 
-  // Reset timer when question changes
+  // Refs to always hold the latest values inside the interval callback
+  // so auto-skip logic never captures a stale closure.
+  const answersRef = useRef(answers);
+  const isLastRef = useRef(isLast);
+  const onCompleteRef = useRef(onComplete);
+  const startTimeRef = useRef(startTime);
+
+  // Keep refs in sync with latest values each render
   useEffect(() => {
+    answersRef.current = answers;
+  }, [answers]);
+  useEffect(() => {
+    isLastRef.current = isLast;
+  }, [isLast]);
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
+
+  // Countdown timer — restarts on every new question (currentIndex changes)
+  // and stops immediately when a question is answered.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: currentIndex intentionally restarts the timer
+  useEffect(() => {
+    // Reset to full 60 s for each new question
     setTimeRemaining(TIMER_SECONDS);
-  }, []);
 
-  // Countdown timer
-  useEffect(() => {
-    // Stop timer if question is already answered
-    if (isAnswered) {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-      return;
-    }
+    // Don't run timer if the question is already answered
+    if (isAnswered) return;
 
-    timerRef.current = setInterval(() => {
+    const interval = setInterval(() => {
       setTimeRemaining((prev) => {
         if (prev <= 1) {
-          // Auto-skip when time runs out
-          clearInterval(timerRef.current!);
-          timerRef.current = null;
-          // Use setTimeout to avoid state update during render
+          clearInterval(interval);
+          // Read fresh values from refs to avoid stale closure bugs
           setTimeout(() => {
-            handleSkipOrAutoSkip();
+            if (isLastRef.current) {
+              onCompleteRef.current(answersRef.current, startTimeRef.current);
+            } else {
+              setCurrentIndex((i) => i + 1);
+            }
           }, 0);
           return 0;
         }
@@ -79,28 +92,12 @@ export default function QuizScreen({
       });
     }, 1000);
 
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    };
-  }, [isAnswered]);
+    return () => clearInterval(interval);
+  }, [currentIndex, isAnswered]);
 
   const stopTimer = () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-  };
-
-  const handleSkipOrAutoSkip = () => {
-    // answers[currentIndex] stays -1 (skipped sentinel)
-    if (isLast) {
-      onComplete(answers, startTime);
-    } else {
-      setCurrentIndex((i) => i + 1);
-    }
+    // Timer cleanup is handled by the useEffect cleanup above;
+    // this is a no-op stub kept for call-site compatibility.
   };
 
   const handleSelect = (optionIndex: number) => {

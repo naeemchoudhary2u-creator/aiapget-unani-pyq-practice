@@ -9,7 +9,7 @@ import {
   X,
 } from "lucide-react";
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Question } from "../backend";
 import {
   useAddQuestion,
@@ -81,17 +81,14 @@ export default function AdminPanelScreen({ onBack }: AdminPanelScreenProps) {
   const addQuestionMutation = useAddQuestion();
   const removeQuestionMutation = useRemoveQuestion();
 
-  // Clear messages and reset mutation state when switching tabs
-  useEffect(() => {
-    setSuccessMessage("");
-    setErrorMessage("");
-    addQuestionMutation.reset();
-  }, [addQuestionMutation.reset]);
+  // Keep a stable ref to reset so we can call it without triggering re-renders
+  const resetMutationRef = useRef(addQuestionMutation.reset);
+  resetMutationRef.current = addQuestionMutation.reset;
 
   // Clear mutation error state on mount to avoid stale errors from previous sessions
   useEffect(() => {
-    addQuestionMutation.reset();
-  }, [addQuestionMutation.reset]);
+    resetMutationRef.current();
+  }, []);
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -254,7 +251,12 @@ export default function AdminPanelScreen({ onBack }: AdminPanelScreenProps) {
         <div className="flex gap-2 mb-6">
           <button
             type="button"
-            onClick={() => setActiveTab("add")}
+            onClick={() => {
+              setActiveTab("add");
+              setSuccessMessage("");
+              setErrorMessage("");
+              resetMutationRef.current();
+            }}
             className={`px-5 py-2.5 rounded-xl font-medium text-sm transition-colors ${
               activeTab === "add"
                 ? "bg-primary text-primary-foreground"
@@ -266,7 +268,12 @@ export default function AdminPanelScreen({ onBack }: AdminPanelScreenProps) {
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab("list")}
+            onClick={() => {
+              setActiveTab("list");
+              setSuccessMessage("");
+              setErrorMessage("");
+              resetMutationRef.current();
+            }}
             className={`px-5 py-2.5 rounded-xl font-medium text-sm transition-colors ${
               activeTab === "list"
                 ? "bg-primary text-primary-foreground"
