@@ -194,22 +194,6 @@ export default function HomeScreen({ onNavigate }: HomeScreenProps) {
           </p>
         </section>
       </main>
-
-      {/* Footer */}
-      <footer className="border-t border-border bg-card py-4 px-4 text-center">
-        <p className="text-xs text-muted-foreground font-body">
-          © {new Date().getFullYear()} AIAPGET Unani PYQ Practice &nbsp;·&nbsp;{" "}
-          Built with <span className="text-destructive">♥</span> using{" "}
-          <a
-            href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname || "aiapget-unani-pyq")}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gold hover:underline"
-          >
-            caffeine.ai
-          </a>
-        </p>
-      </footer>
     </div>
   );
 }

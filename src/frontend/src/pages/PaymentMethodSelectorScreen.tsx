@@ -1,14 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
+  AlertCircle,
   ArrowLeft,
-  Building2,
   CheckCircle2,
-  CreditCard,
-  Loader2,
-  Smartphone,
-  Wallet,
+  Clock,
+  ExternalLink,
 } from "lucide-react";
 import { useState } from "react";
 import type { Screen } from "../App";
@@ -20,59 +16,114 @@ interface PaymentMethodSelectorScreenProps {
   onNavigate: (screen: Screen) => void;
 }
 
-type PaymentMethod = "upi" | "credit" | "debit" | "netbanking" | "wallet";
+const RAZORPAY_BASE = "https://razorpay.me/@aiapgetunani";
 
-const PAYMENT_METHODS: {
-  id: PaymentMethod;
-  label: string;
-  desc: string;
-  icon: React.ReactNode;
-  badge?: string;
-}[] = [
+// Build Razorpay URL with amount pre-filled.
+// razorpay.me handles support ?amount= in paise (1 rupee = 100 paise).
+// planPrice is like "₹100" or "₹800" — strip the ₹ symbol, convert to paise.
+function getRazorpayLink(planPrice: string): string {
+  const rupees = Number.parseInt(planPrice.replace(/[^\d]/g, ""), 10);
+  if (!Number.isNaN(rupees) && rupees > 0) {
+    const paise = rupees * 100;
+    return `${RAZORPAY_BASE}?amount=${paise}`;
+  }
+  return RAZORPAY_BASE;
+}
+
+const PAYMENT_OPTIONS = [
   {
     id: "upi",
-    label: "UPI",
-    desc: "Pay via any UPI app instantly",
-    icon: (
-      <img
-        src="/assets/generated/upi-badge.dim_120x48.png"
-        alt="UPI"
-        className="h-7 object-contain"
-      />
-    ),
-    badge: "Recommended",
+    label: "UPI (Google Pay, PhonePe, Paytm, BHIM)",
+    description: "Pay instantly with any UPI app",
+    icon: "🏦",
   },
   {
-    id: "credit",
-    label: "Credit Card",
-    desc: "Visa, Mastercard, RuPay, Amex",
-    icon: (
-      <img
-        src="/assets/generated/card-icon.dim_64x64.png"
-        alt="Card"
-        className="h-7 w-7 object-contain"
-      />
-    ),
-  },
-  {
-    id: "debit",
-    label: "Debit Card",
-    desc: "All major bank debit cards",
-    icon: <CreditCard className="w-6 h-6 text-primary" />,
+    id: "card",
+    label: "Credit / Debit Card",
+    description: "Visa, Mastercard, RuPay",
+    icon: "💳",
   },
   {
     id: "netbanking",
     label: "Net Banking",
-    desc: "All major Indian banks",
-    icon: <Building2 className="w-6 h-6 text-primary" />,
+    description: "All major Indian banks supported",
+    icon: "🏛️",
   },
   {
     id: "wallet",
     label: "Wallets",
-    desc: "Paytm, PhonePe, Amazon Pay",
-    icon: <Wallet className="w-6 h-6 text-primary" />,
+    description: "Paytm, Mobikwik, Freecharge & more",
+    icon: "👛",
+  },
+  {
+    id: "emi",
+    label: "EMI",
+    description: "Easy monthly instalments via card or bank",
+    icon: "📅",
   },
 ];
+
+function submitPaymentForVerification(
+  cycle: "monthly" | "yearly",
+  paymentDetails: { utrId: string; paymentMethod: string; amount: string },
+): string {
+  const paymentId = `PAY_${Date.now()}`;
+
+  // Save subscription as pending — NOT yet active
+  localStorage.setItem(
+    "aiapget_subscription",
+    JSON.stringify({ plan: cycle, status: "pending", paymentId }),
+  );
+
+  // Save payment record for admin review
+  const existingRecords: object[] = (() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem("aiapget_payment_records") ?? "[]",
+      );
+    } catch {
+      return [];
+    }
+  })();
+
+  const newRecord = {
+    id: paymentId,
+    date: new Date().toISOString(),
+    plan: cycle,
+    amount: paymentDetails.amount,
+    utrId: paymentDetails.utrId.trim(),
+    paymentMethod: paymentDetails.paymentMethod,
+    status: "pending",
+    userId: (() => {
+      try {
+        return (
+          JSON.parse(localStorage.getItem("aiapget_user_session") ?? "{}").id ??
+          "unknown"
+        );
+      } catch {
+        return "unknown";
+      }
+    })(),
+    userName: (() => {
+      try {
+        return (
+          JSON.parse(localStorage.getItem("aiapget_user_session") ?? "{}")
+            .name ?? "Unknown"
+        );
+      } catch {
+        return "Unknown";
+      }
+    })(),
+  };
+
+  existingRecords.push(newRecord);
+  localStorage.setItem(
+    "aiapget_payment_records",
+    JSON.stringify(existingRecords),
+  );
+
+  return paymentId;
+}
 
 export default function PaymentMethodSelectorScreen({
   planName,
@@ -80,56 +131,82 @@ export default function PaymentMethodSelectorScreen({
   planCycle,
   onNavigate,
 }: PaymentMethodSelectorScreenProps) {
-  const [selected, setSelected] = useState<PaymentMethod>("upi");
-  const [upiId, setUpiId] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardExpiry, setCardExpiry] = useState("");
-  const [cardCvv, setCardCvv] = useState("");
-  const [cardName, setCardName] = useState("");
-  const [bank, setBank] = useState("");
-  const [walletApp, setWalletApp] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [razorpayOpened, setRazorpayOpened] = useState(false);
+  const [pendingVerification, setPendingVerification] = useState(false);
+  const [utrId, setUtrId] = useState("");
+  const [utrError, setUtrError] = useState("");
+  const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
 
-  const handlePay = async () => {
-    setIsProcessing(true);
-    // Mock payment processing delay
-    await new Promise((r) => setTimeout(r, 2000));
-    setIsProcessing(false);
-    setIsSuccess(true);
+  const razorpayLink = getRazorpayLink(planPrice);
+
+  const handlePay = (methodId?: string) => {
+    window.open(razorpayLink, "_blank", "noopener,noreferrer");
+    setRazorpayOpened(true);
+    if (methodId) setSelectedMethod(methodId);
   };
 
-  if (isSuccess) {
+  const handleConfirmPayment = () => {
+    setUtrError("");
+    const trimmed = utrId.trim();
+    if (!trimmed) {
+      setUtrError(
+        "Please enter the UTR / Transaction ID from your payment receipt.",
+      );
+      return;
+    }
+    if (trimmed.length < 8) {
+      setUtrError("UTR / Transaction ID must be at least 8 characters.");
+      return;
+    }
+    submitPaymentForVerification(planCycle, {
+      utrId: trimmed,
+      paymentMethod: selectedMethod ?? "unknown",
+      amount: planPrice,
+    });
+    setPendingVerification(true);
+  };
+
+  // "Verification in Progress" screen — shown after UTR submitted
+  if (pendingVerification) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
-        <div className="bg-card border border-border rounded-2xl p-8 max-w-sm w-full text-center shadow-lg space-y-4">
+        <div
+          className="bg-card border border-border rounded-2xl p-8 max-w-sm w-full text-center shadow-lg space-y-4"
+          data-ocid="payment.pending_state"
+        >
           <div className="flex items-center justify-center">
-            <div className="w-16 h-16 rounded-full bg-success/15 flex items-center justify-center">
-              <CheckCircle2 className="w-9 h-9 text-success" />
+            <div className="w-16 h-16 rounded-full bg-amber-500/15 flex items-center justify-center">
+              <Clock className="w-9 h-9 text-amber-500" />
             </div>
           </div>
           <h2 className="text-xl font-heading font-bold text-foreground">
-            Payment Successful!
+            Verification in Progress
           </h2>
           <p className="text-sm text-muted-foreground font-body">
-            You're now subscribed to the{" "}
-            <strong className="text-foreground">{planName}</strong>. Enjoy
-            unlimited access to all AIAPGET Unani PYQ materials.
+            Your payment details have been submitted. The admin will verify your
+            UTR and activate your subscription shortly.
           </p>
-          <div className="bg-muted rounded-xl p-3 text-sm font-body text-muted-foreground">
+          <div className="bg-muted rounded-xl p-3 text-sm font-body text-muted-foreground space-y-1">
             <p>
-              Amount paid:{" "}
-              <strong className="text-foreground">{planPrice}</strong>
+              Plan: <strong className="text-foreground">{planName}</strong>
             </p>
             <p>
-              Billing:{" "}
-              <strong className="text-foreground capitalize">
-                {planCycle}
+              Amount: <strong className="text-foreground">{planPrice}</strong>
+            </p>
+            <p className="text-xs mt-1 text-amber-500">
+              UTR submitted:{" "}
+              <strong className="text-foreground font-mono">
+                {utrId.trim()}
               </strong>
             </p>
           </div>
+          <p className="text-xs text-muted-foreground font-body">
+            Once approved, you will have full access. Please check back in a
+            little while.
+          </p>
           <Button
-            className="w-full font-body bg-gold hover:bg-gold/90 text-white border-0"
+            data-ocid="payment.primary_button"
+            className="w-full font-body bg-primary hover:bg-primary/90 text-primary-foreground border-0"
             onClick={() => onNavigate({ name: "home" })}
           >
             Go to Home
@@ -145,6 +222,7 @@ export default function PaymentMethodSelectorScreen({
         {/* Back */}
         <button
           type="button"
+          data-ocid="payment.link"
           onClick={() => onNavigate({ name: "subscription" })}
           className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors font-body"
         >
@@ -170,234 +248,135 @@ export default function PaymentMethodSelectorScreen({
           </div>
         </div>
 
-        {/* Payment Methods */}
-        <div>
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest font-body mb-3">
-            Select Payment Method
-          </h3>
+        {/* Step 1: Pay */}
+        <div
+          className="bg-card border border-border rounded-2xl p-5 space-y-4"
+          data-ocid="payment.section"
+        >
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
+              1
+            </span>
+            <h3 className="text-base font-heading font-bold text-foreground">
+              Pay via Razorpay
+            </h3>
+          </div>
+          <p className="text-xs text-muted-foreground font-body -mt-2">
+            Tap a payment method below to open Razorpay's secure payment page.
+          </p>
+
+          {/* Payment method list */}
           <div className="space-y-2">
-            {PAYMENT_METHODS.map((method) => (
+            {PAYMENT_OPTIONS.map((option) => (
               <button
+                key={option.id}
                 type="button"
-                key={method.id}
-                onClick={() => setSelected(method.id)}
-                className={`w-full flex items-center gap-3 p-3.5 rounded-xl border-2 text-left transition-all duration-150 focus:outline-none ${
-                  selected === method.id
-                    ? "border-gold bg-gold/5 shadow-sm"
-                    : "border-border bg-card hover:border-gold/40"
-                }`}
+                data-ocid={`payment.${option.id}.button`}
+                onClick={() => handlePay(option.id)}
+                className="w-full flex items-center gap-3 bg-muted/50 border border-border rounded-xl px-4 py-3 hover:border-gold/60 hover:bg-muted/80 active:scale-[0.98] transition-all duration-150 cursor-pointer text-left"
               >
-                {/* Radio dot */}
-                <div
-                  className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors ${
-                    selected === method.id
-                      ? "border-gold"
-                      : "border-muted-foreground"
-                  }`}
-                >
-                  {selected === method.id && (
-                    <div className="w-2 h-2 rounded-full bg-gold" />
-                  )}
-                </div>
-
-                {/* Icon */}
-                <div className="w-10 flex items-center justify-center flex-shrink-0">
-                  {method.icon}
-                </div>
-
-                {/* Label */}
+                <span className="text-2xl">{option.icon}</span>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-body font-semibold text-foreground">
-                      {method.label}
-                    </span>
-                    {method.badge && (
-                      <span className="text-[10px] bg-gold/20 text-gold border border-gold/40 px-1.5 py-0.5 rounded-full font-body font-semibold">
-                        {method.badge}
-                      </span>
-                    )}
-                  </div>
+                  <p className="text-sm font-semibold text-foreground font-body leading-tight">
+                    {option.label}
+                  </p>
                   <p className="text-xs text-muted-foreground font-body">
-                    {method.desc}
+                    {option.description}
                   </p>
                 </div>
+                <ExternalLink className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               </button>
             ))}
           </div>
+
+          <Button
+            onClick={() => handlePay()}
+            data-ocid="payment.submit_button"
+            className="w-full font-body text-base py-6 bg-gold hover:bg-gold/90 text-white border-0 rounded-xl flex items-center justify-center gap-2"
+          >
+            <ExternalLink className="w-5 h-5" />
+            Pay {planPrice} via Razorpay
+          </Button>
+
+          <p className="text-center text-xs text-muted-foreground font-body">
+            🔒 You will be redirected to Razorpay's secure payment page.
+          </p>
         </div>
 
-        {/* Dynamic input fields */}
-        <div className="bg-card border border-border rounded-xl p-4 space-y-3">
-          {selected === "upi" && (
-            <div className="space-y-2">
-              <Label htmlFor="upi-id" className="font-body text-sm">
-                UPI ID
-              </Label>
-              <div className="flex items-center gap-2">
-                <Smartphone className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                <Input
-                  id="upi-id"
-                  placeholder="yourname@upi"
-                  value={upiId}
-                  onChange={(e) => setUpiId(e.target.value)}
-                  className="font-body"
-                />
-              </div>
-              <p className="text-xs text-muted-foreground font-body">
-                Enter your UPI ID (e.g. name@okaxis, name@paytm)
-              </p>
-            </div>
-          )}
-
-          {(selected === "credit" || selected === "debit") && (
-            <div className="space-y-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="card-name" className="font-body text-sm">
-                  Cardholder Name
-                </Label>
-                <Input
-                  id="card-name"
-                  placeholder="Name on card"
-                  value={cardName}
-                  onChange={(e) => setCardName(e.target.value)}
-                  className="font-body"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="card-number" className="font-body text-sm">
-                  Card Number
-                </Label>
-                <Input
-                  id="card-number"
-                  placeholder="1234 5678 9012 3456"
-                  value={cardNumber}
-                  onChange={(e) =>
-                    setCardNumber(
-                      e.target.value
-                        .replace(/\D/g, "")
-                        .replace(/(.{4})/g, "$1 ")
-                        .trim()
-                        .slice(0, 19),
-                    )
-                  }
-                  className="font-body"
-                  maxLength={19}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="card-expiry" className="font-body text-sm">
-                    Expiry (MM/YY)
-                  </Label>
-                  <Input
-                    id="card-expiry"
-                    placeholder="MM/YY"
-                    value={cardExpiry}
-                    onChange={(e) => {
-                      const v = e.target.value.replace(/\D/g, "").slice(0, 4);
-                      setCardExpiry(
-                        v.length > 2 ? `${v.slice(0, 2)}/${v.slice(2)}` : v,
-                      );
-                    }}
-                    className="font-body"
-                    maxLength={5}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="card-cvv" className="font-body text-sm">
-                    CVV
-                  </Label>
-                  <Input
-                    id="card-cvv"
-                    placeholder="•••"
-                    type="password"
-                    value={cardCvv}
-                    onChange={(e) =>
-                      setCardCvv(e.target.value.replace(/\D/g, "").slice(0, 4))
-                    }
-                    className="font-body"
-                    maxLength={4}
-                  />
-                </div>
+        {/* Step 2: Enter UTR and confirm — only shown after Razorpay is opened */}
+        {razorpayOpened && (
+          <div
+            className="bg-success/5 border border-success/30 rounded-2xl p-5 space-y-4"
+            data-ocid="payment.confirm.section"
+          >
+            <div className="flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-success text-white text-xs font-bold flex items-center justify-center">
+                2
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-foreground font-body">
+                  Confirm Your Payment
+                </p>
+                <p className="text-xs text-muted-foreground font-body">
+                  Enter the UTR / Transaction ID from your payment receipt to
+                  activate your subscription.
+                </p>
               </div>
             </div>
-          )}
 
-          {selected === "netbanking" && (
             <div className="space-y-2">
-              <Label htmlFor="bank-select" className="font-body text-sm">
-                Select Bank
-              </Label>
-              <select
-                id="bank-select"
-                value={bank}
-                onChange={(e) => setBank(e.target.value)}
-                className="w-full border border-border rounded-lg px-3 py-2 text-sm font-body bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-gold/50"
+              <label
+                htmlFor="utr-id"
+                className="block text-xs font-medium text-foreground"
               >
-                <option value="">-- Choose your bank --</option>
-                <option value="sbi">State Bank of India</option>
-                <option value="hdfc">HDFC Bank</option>
-                <option value="icici">ICICI Bank</option>
-                <option value="axis">Axis Bank</option>
-                <option value="kotak">Kotak Mahindra Bank</option>
-                <option value="pnb">Punjab National Bank</option>
-                <option value="bob">Bank of Baroda</option>
-                <option value="other">Other Bank</option>
-              </select>
-            </div>
-          )}
-
-          {selected === "wallet" && (
-            <div className="space-y-2">
-              <p className="font-body text-sm font-medium text-foreground">
-                Select Wallet
+                UTR / Transaction ID <span className="text-destructive">*</span>
+              </label>
+              <input
+                id="utr-id"
+                type="text"
+                data-ocid="payment.utr.input"
+                value={utrId}
+                onChange={(e) => {
+                  setUtrId(e.target.value);
+                  if (utrError) setUtrError("");
+                }}
+                className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-success/50 placeholder:text-muted-foreground font-body"
+                placeholder="e.g. 4234567890 or T2312345..."
+              />
+              <p className="text-[11px] text-muted-foreground font-body">
+                You can find this in your UPI app's transaction history or
+                Razorpay payment receipt.
               </p>
-              <div className="grid grid-cols-3 gap-2">
-                {[
-                  "Paytm",
-                  "PhonePe",
-                  "Amazon Pay",
-                  "Google Pay",
-                  "Mobikwik",
-                  "Freecharge",
-                ].map((w) => (
-                  <button
-                    type="button"
-                    key={w}
-                    onClick={() => setWalletApp(w)}
-                    className={`py-2 px-2 rounded-lg border text-xs font-body font-medium transition-colors ${
-                      walletApp === w
-                        ? "border-gold bg-gold/10 text-gold"
-                        : "border-border bg-background text-foreground hover:border-gold/40"
-                    }`}
-                  >
-                    {w}
-                  </button>
-                ))}
-              </div>
+              {utrError && (
+                <div
+                  className="flex items-center gap-2 text-xs text-destructive font-body"
+                  data-ocid="payment.error_state"
+                >
+                  <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                  {utrError}
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* Pay Button */}
-        <Button
-          onClick={handlePay}
-          disabled={isProcessing}
-          className="w-full font-body text-base py-6 bg-gold hover:bg-gold/90 text-white border-0 rounded-xl"
-        >
-          {isProcessing ? (
-            <span className="flex items-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Processing Payment…
-            </span>
-          ) : (
-            `Pay ${planPrice}`
-          )}
-        </Button>
+            <Button
+              data-ocid="payment.confirm_button"
+              onClick={handleConfirmPayment}
+              className="w-full font-body bg-success hover:bg-success/90 text-white border-0"
+            >
+              <CheckCircle2 className="w-4 h-4 mr-2" />
+              Confirm Payment & Activate {planName}
+            </Button>
 
-        <p className="text-center text-xs text-muted-foreground font-body">
-          🔒 This is a demo UI. No real payment will be processed.
-        </p>
+            <button
+              type="button"
+              data-ocid="payment.secondary_button"
+              onClick={() => handlePay()}
+              className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors font-body py-1"
+            >
+              Didn't finish? Reopen Razorpay →
+            </button>
+          </div>
+        )}
       </main>
     </div>
   );

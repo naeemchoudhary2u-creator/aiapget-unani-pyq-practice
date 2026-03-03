@@ -10,8 +10,6 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
-export type BillingCycle = { 'monthly' : null } |
-  { 'yearly' : null };
 export interface Question {
   'id' : bigint,
   'topic' : string,
@@ -21,21 +19,22 @@ export interface Question {
   'questionText' : string,
   'correctAnswerIndex' : bigint,
 }
-export interface SubscriptionPlan {
-  'id' : bigint,
-  'features' : Array<string>,
-  'name' : string,
-  'billingCycle' : BillingCycle,
-  'price' : number,
+export interface SubscriptionSettings {
+  'yearlyPrice' : bigint,
+  'monthlyPrice' : bigint,
+  'freeTrialDays' : bigint,
 }
-export interface UserProfile { 'name' : string }
+export interface UserProfile {
+  'age' : bigint,
+  'name' : string,
+  'gender' : string,
+}
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'addQuestion' : ActorMethod<[Question], boolean>,
-  'addSubscriptionPlan' : ActorMethod<[SubscriptionPlan], boolean>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'getAdminQuestions' : ActorMethod<[], Array<Question>>,
   'getByTopic' : ActorMethod<[string], Array<Question>>,
@@ -43,12 +42,13 @@ export interface _SERVICE {
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getQuestions' : ActorMethod<[], Array<Question>>,
-  'getSubscriptionPlans' : ActorMethod<[], Array<SubscriptionPlan>>,
+  'getSubscriptionSettings' : ActorMethod<[], SubscriptionSettings>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'recordAttempt' : ActorMethod<[bigint, bigint], boolean>,
   'removeQuestion' : ActorMethod<[bigint], boolean>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'updateSubscriptionSettings' : ActorMethod<[SubscriptionSettings], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

@@ -3,8 +3,10 @@ import {
   ArrowLeft,
   BookOpen,
   CheckCircle,
+  CreditCard,
   Loader2,
   Plus,
+  Settings,
   Trash2,
   X,
 } from "lucide-react";
@@ -19,8 +21,35 @@ import {
 
 const ADMIN_PASSWORD = "Naeem9472";
 
+function getStoredPrices() {
+  try {
+    const raw = localStorage.getItem("aiapget_subscription_prices");
+    if (raw) {
+      const p = JSON.parse(raw);
+      return {
+        monthly: typeof p.monthly === "number" ? p.monthly : 100,
+        yearly: typeof p.yearly === "number" ? p.yearly : 800,
+        trialDays: typeof p.trialDays === "number" ? p.trialDays : 7,
+      };
+    }
+  } catch {}
+  return { monthly: 100, yearly: 800, trialDays: 7 };
+}
+
 interface AdminPanelScreenProps {
   onBack: () => void;
+}
+
+interface PaymentRecord {
+  id: string;
+  date: string;
+  plan: string;
+  amount: string;
+  utrId: string;
+  paymentMethod: string;
+  userId: string;
+  userName: string;
+  status?: "pending" | "approved" | "rejected";
 }
 
 interface QuestionForm {
@@ -71,7 +100,103 @@ export default function AdminPanelScreen({ onBack }: AdminPanelScreenProps) {
   const [passwordError, setPasswordError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [activeTab, setActiveTab] = useState<"add" | "list">("add");
+  const [activeTab, setActiveTab] = useState<
+    "add" | "list" | "pricing" | "payments"
+  >("add");
+
+  const loadPaymentRecords = (): PaymentRecord[] => {
+    try {
+      return JSON.parse(
+        localStorage.getItem("aiapget_payment_records") ?? "[]",
+      );
+    } catch {
+      return [];
+    }
+  };
+
+  // Payment records state — mutable so approve/reject updates re-render
+  const [paymentRecords, setPaymentRecords] =
+    useState<PaymentRecord[]>(loadPaymentRecords);
+
+  // Reload payment records every time the payments tab is opened
+  useEffect(() => {
+    if (activeTab === "payments") {
+      try {
+        const records: PaymentRecord[] = JSON.parse(
+          localStorage.getItem("aiapget_payment_records") ?? "[]",
+        );
+        setPaymentRecords(records);
+      } catch {
+        setPaymentRecords([]);
+      }
+    }
+  }, [activeTab]);
+
+  const handleApprovePayment = (record: PaymentRecord) => {
+    // Activate subscription for this user
+    const days = record.plan === "yearly" ? 365 : 30;
+    const expiresAt = Date.now() + days * 24 * 60 * 60 * 1000;
+
+    // Update the subscription key for the current device
+    // Since this is localStorage-based, we update the shared subscription store
+    // keyed by userId. For single-user device apps the main key is used.
+    const subKey =
+      record.userId && record.userId !== "unknown"
+        ? `aiapget_subscription_${record.userId}`
+        : "aiapget_subscription";
+
+    localStorage.setItem(
+      subKey,
+      JSON.stringify({ plan: record.plan, status: "approved", expiresAt }),
+    );
+
+    // Also update the main key (for the current user on this device)
+    const currentUserId = (() => {
+      try {
+        return (
+          JSON.parse(localStorage.getItem("aiapget_user_session") ?? "{}").id ??
+          null
+        );
+      } catch {
+        return null;
+      }
+    })();
+    if (currentUserId === record.userId || record.userId === "unknown") {
+      localStorage.setItem(
+        "aiapget_subscription",
+        JSON.stringify({ plan: record.plan, status: "approved", expiresAt }),
+      );
+    }
+
+    // Update payment record status
+    const updated = loadPaymentRecords().map((r) =>
+      r.id === record.id ? { ...r, status: "approved" as const } : r,
+    );
+    localStorage.setItem("aiapget_payment_records", JSON.stringify(updated));
+    setPaymentRecords(updated);
+  };
+
+  const handleRejectPayment = (record: PaymentRecord) => {
+    const updated = loadPaymentRecords().map((r) =>
+      r.id === record.id ? { ...r, status: "rejected" as const } : r,
+    );
+    localStorage.setItem("aiapget_payment_records", JSON.stringify(updated));
+    setPaymentRecords(updated);
+  };
+
+  // Pricing state
+  const storedPrices = getStoredPrices();
+  const [pricingMonthly, setPricingMonthly] = useState(
+    String(storedPrices.monthly),
+  );
+  const [pricingYearly, setPricingYearly] = useState(
+    String(storedPrices.yearly),
+  );
+  const [pricingTrialDays, setPricingTrialDays] = useState(
+    String(storedPrices.trialDays),
+  );
+  const [pricingSaved, setPricingSaved] = useState(false);
+  const [pricingError, setPricingError] = useState("");
 
   const [form, setForm] = useState<QuestionForm>(DEFAULT_FORM);
   const [confirmDeleteId, setConfirmDeleteId] = useState<bigint | null>(null);
@@ -105,6 +230,32 @@ export default function AdminPanelScreen({ onBack }: AdminPanelScreenProps) {
     value: string | number,
   ) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSavePricing = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPricingError("");
+    const monthly = Number.parseInt(pricingMonthly, 10);
+    const yearly = Number.parseInt(pricingYearly, 10);
+    const trialDays = Number.parseInt(pricingTrialDays, 10);
+    if (Number.isNaN(monthly) || monthly < 1) {
+      setPricingError("Monthly price must be a positive number.");
+      return;
+    }
+    if (Number.isNaN(yearly) || yearly < 1) {
+      setPricingError("Yearly price must be a positive number.");
+      return;
+    }
+    if (Number.isNaN(trialDays) || trialDays < 1 || trialDays > 30) {
+      setPricingError("Trial days must be between 1 and 30.");
+      return;
+    }
+    localStorage.setItem(
+      "aiapget_subscription_prices",
+      JSON.stringify({ monthly, yearly, trialDays }),
+    );
+    setPricingSaved(true);
+    setTimeout(() => setPricingSaved(false), 3000);
   };
 
   const handleDeleteConfirm = async (id: bigint) => {
@@ -282,6 +433,42 @@ export default function AdminPanelScreen({ onBack }: AdminPanelScreenProps) {
           >
             <BookOpen className="w-4 h-4 inline mr-1.5" />
             View Questions ({adminQuestions.length})
+          </button>
+          <button
+            type="button"
+            data-ocid="admin.pricing.tab"
+            onClick={() => {
+              setActiveTab("pricing");
+              setSuccessMessage("");
+              setErrorMessage("");
+              resetMutationRef.current();
+            }}
+            className={`px-5 py-2.5 rounded-xl font-medium text-sm transition-colors ${
+              activeTab === "pricing"
+                ? "bg-primary text-primary-foreground"
+                : "bg-card text-muted-foreground hover:text-foreground border border-border"
+            }`}
+          >
+            <Settings className="w-4 h-4 inline mr-1.5" />
+            Pricing
+          </button>
+          <button
+            type="button"
+            data-ocid="admin.payments.tab"
+            onClick={() => {
+              setActiveTab("payments");
+              setSuccessMessage("");
+              setErrorMessage("");
+              resetMutationRef.current();
+            }}
+            className={`px-5 py-2.5 rounded-xl font-medium text-sm transition-colors ${
+              activeTab === "payments"
+                ? "bg-primary text-primary-foreground"
+                : "bg-card text-muted-foreground hover:text-foreground border border-border"
+            }`}
+          >
+            <CreditCard className="w-4 h-4 inline mr-1.5" />
+            Payments ({paymentRecords.length})
           </button>
         </div>
 
@@ -466,6 +653,269 @@ export default function AdminPanelScreen({ onBack }: AdminPanelScreenProps) {
                 )}
               </button>
             </form>
+          </div>
+        )}
+
+        {/* Pricing Settings */}
+        {activeTab === "pricing" && (
+          <div className="bg-card rounded-2xl border border-border p-6">
+            <h2 className="font-heading text-lg font-semibold text-foreground mb-2">
+              Subscription Pricing
+            </h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              Update the subscription prices shown to users. Changes take effect
+              immediately.
+            </p>
+
+            {pricingSaved && (
+              <div
+                data-ocid="admin.pricing.success_state"
+                className="mb-4 p-4 bg-success/10 border border-success/30 rounded-xl flex items-center gap-2 text-success"
+              >
+                <CheckCircle className="w-5 h-5 flex-shrink-0" />
+                <span className="text-sm font-medium">
+                  Prices saved successfully!
+                </span>
+              </div>
+            )}
+            {pricingError && (
+              <div
+                data-ocid="admin.pricing.error_state"
+                className="mb-4 p-4 bg-destructive/10 border border-destructive/30 rounded-xl flex items-center gap-2 text-destructive"
+              >
+                <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                <span className="text-sm font-medium">{pricingError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSavePricing} className="space-y-5">
+              <div>
+                <label
+                  htmlFor="pricing-monthly"
+                  className="block text-sm font-medium text-foreground mb-2"
+                >
+                  Monthly Plan Price (₹)
+                </label>
+                <input
+                  id="pricing-monthly"
+                  type="number"
+                  data-ocid="admin.pricing.monthly.input"
+                  value={pricingMonthly}
+                  onChange={(e) => setPricingMonthly(e.target.value)}
+                  min={1}
+                  className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  placeholder="e.g. 100"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="pricing-yearly"
+                  className="block text-sm font-medium text-foreground mb-2"
+                >
+                  Yearly Plan Price (₹)
+                </label>
+                <input
+                  id="pricing-yearly"
+                  type="number"
+                  data-ocid="admin.pricing.yearly.input"
+                  value={pricingYearly}
+                  onChange={(e) => setPricingYearly(e.target.value)}
+                  min={1}
+                  className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  placeholder="e.g. 800"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="pricing-trial"
+                  className="block text-sm font-medium text-foreground mb-2"
+                >
+                  Free Trial Duration (days)
+                </label>
+                <input
+                  id="pricing-trial"
+                  type="number"
+                  data-ocid="admin.pricing.trial.input"
+                  value={pricingTrialDays}
+                  onChange={(e) => setPricingTrialDays(e.target.value)}
+                  min={1}
+                  max={30}
+                  className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  placeholder="e.g. 7"
+                />
+              </div>
+
+              <button
+                type="submit"
+                data-ocid="admin.pricing.save_button"
+                className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-semibold hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
+              >
+                <Settings className="w-4 h-4" />
+                Save Pricing
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* Payment Records */}
+        {activeTab === "payments" && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="font-heading text-lg font-semibold text-foreground">
+                  Payment Records
+                </h2>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Verify UTR against your Razorpay dashboard, then Approve or
+                  Reject each payment.
+                </p>
+              </div>
+            </div>
+
+            {paymentRecords.length === 0 ? (
+              <div
+                data-ocid="admin.payments.empty_state"
+                className="bg-card rounded-2xl border border-border p-12 text-center"
+              >
+                <CreditCard className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground text-sm">
+                  No payment records yet. Records will appear here once users
+                  complete subscription payments.
+                </p>
+              </div>
+            ) : (
+              [...paymentRecords].reverse().map((record, idx) => {
+                const status = record.status ?? "pending";
+                return (
+                  <div
+                    key={record.id}
+                    data-ocid={`admin.payment.item.${idx + 1}`}
+                    className={`bg-card rounded-2xl border p-5 space-y-3 ${
+                      status === "approved"
+                        ? "border-success/40"
+                        : status === "rejected"
+                          ? "border-destructive/40"
+                          : "border-amber-500/40"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-1 rounded-lg">
+                          #{paymentRecords.length - idx}
+                        </span>
+                        <span
+                          className={`text-xs px-2 py-1 rounded-lg font-medium ${
+                            record.plan === "yearly"
+                              ? "bg-gold/10 text-gold"
+                              : "bg-primary/10 text-primary"
+                          }`}
+                        >
+                          {record.plan === "yearly" ? "Yearly" : "Monthly"}
+                        </span>
+                        {/* Status badge */}
+                        <span
+                          className={`text-xs px-2 py-1 rounded-lg font-semibold ${
+                            status === "approved"
+                              ? "bg-success/15 text-success"
+                              : status === "rejected"
+                                ? "bg-destructive/15 text-destructive"
+                                : "bg-amber-500/15 text-amber-600"
+                          }`}
+                        >
+                          {status === "approved"
+                            ? "Approved"
+                            : status === "rejected"
+                              ? "Rejected"
+                              : "Pending"}
+                        </span>
+                      </div>
+                      <span className="text-sm font-bold text-foreground">
+                        {record.amount}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div>
+                        <p className="text-muted-foreground mb-0.5">
+                          User Name
+                        </p>
+                        <p className="font-medium text-foreground">
+                          {record.userName}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground mb-0.5">Date</p>
+                        <p className="font-medium text-foreground">
+                          {new Date(record.date).toLocaleDateString("en-IN", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </p>
+                      </div>
+                      <div className="col-span-2">
+                        <p className="text-muted-foreground mb-0.5">
+                          UTR / Transaction ID
+                        </p>
+                        <p className="font-mono font-bold text-success text-sm select-all">
+                          {record.utrId}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground mb-0.5">
+                          Payment Method
+                        </p>
+                        <p className="font-medium text-foreground capitalize">
+                          {record.paymentMethod}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Approve / Reject — only for pending */}
+                    {status === "pending" && (
+                      <div
+                        className="flex gap-2 pt-1"
+                        data-ocid={`admin.payment.actions.${idx + 1}`}
+                      >
+                        <button
+                          type="button"
+                          data-ocid={`admin.payment.approve_button.${idx + 1}`}
+                          onClick={() => handleApprovePayment(record)}
+                          className="flex-1 py-2 rounded-xl bg-success text-white text-sm font-semibold hover:bg-success/90 transition-colors flex items-center justify-center gap-1.5"
+                        >
+                          <CheckCircle className="w-4 h-4" />
+                          Approve
+                        </button>
+                        <button
+                          type="button"
+                          data-ocid={`admin.payment.reject_button.${idx + 1}`}
+                          onClick={() => handleRejectPayment(record)}
+                          className="flex-1 py-2 rounded-xl bg-destructive text-destructive-foreground text-sm font-semibold hover:bg-destructive/90 transition-colors flex items-center justify-center gap-1.5"
+                        >
+                          <X className="w-4 h-4" />
+                          Reject
+                        </button>
+                      </div>
+                    )}
+
+                    {status === "approved" && (
+                      <p className="text-xs text-success font-medium flex items-center gap-1 pt-1">
+                        <CheckCircle className="w-3.5 h-3.5" />
+                        Subscription activated for this user
+                      </p>
+                    )}
+                    {status === "rejected" && (
+                      <p className="text-xs text-destructive font-medium flex items-center gap-1 pt-1">
+                        <X className="w-3.5 h-3.5" />
+                        Payment rejected — user will see a retry notice
+                      </p>
+                    )}
+                  </div>
+                );
+              })
+            )}
           </div>
         )}
 

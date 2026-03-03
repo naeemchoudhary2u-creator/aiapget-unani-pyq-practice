@@ -10,6 +10,7 @@ import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
 
+
 actor {
   public type Question = {
     id : Nat;
@@ -23,14 +24,8 @@ actor {
 
   public type UserProfile = {
     name : Text;
-  };
-
-  public type SubscriptionPlan = {
-    id : Nat;
-    name : Text;
-    price : Float;
-    billingCycle : BillingCycle;
-    features : [Text];
+    age : Nat;
+    gender : Text;
   };
 
   public type BillingCycle = {
@@ -38,10 +33,20 @@ actor {
     #yearly;
   };
 
+  public type SubscriptionSettings = {
+    monthlyPrice : Nat;
+    yearlyPrice : Nat;
+    freeTrialDays : Nat;
+  };
+
   var adminQuestions : [Question] = [];
-  let subscriptionPlans = Map.empty<Nat, SubscriptionPlan>();
   let accessControlState = AccessControl.initState();
   let userProfiles = Map.empty<Principal, UserProfile>();
+  var subscriptionSettings : SubscriptionSettings = {
+    monthlyPrice = 100;
+    yearlyPrice = 800;
+    freeTrialDays = 7;
+  };
 
   include MixinAuthorization(accessControlState);
 
@@ -67,21 +72,23 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  // ── Subscription plan management (admin-only) ───────────────────────────────
-  public shared ({ caller }) func addSubscriptionPlan(newPlan : SubscriptionPlan) : async Bool {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can add subscription plans");
-    };
-    subscriptionPlans.add(newPlan.id, newPlan);
-    true;
+  // ── Subscription settings management (admin-only) ───────────────────────────
+  public query func getSubscriptionSettings() : async SubscriptionSettings {
+    subscriptionSettings;
   };
 
-  public query func getSubscriptionPlans() : async [SubscriptionPlan] {
-    subscriptionPlans.values().toArray();
+  public shared ({ caller }) func updateSubscriptionSettings(newSettings : SubscriptionSettings) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can update subscription settings");
+    };
+    subscriptionSettings := newSettings;
   };
 
   // ── Question management (admin-only) ────────────────────────────────────────
   public shared ({ caller }) func addQuestion(newQuestion : Question) : async Bool {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can add questions");
+    };
     let newQuestions = Array.tabulate(
       adminQuestions.size() + 1,
       func(i) { if (i < adminQuestions.size()) { adminQuestions[i] } else { newQuestion } },
@@ -91,6 +98,9 @@ actor {
   };
 
   public shared ({ caller }) func removeQuestion(id : Nat) : async Bool {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can remove questions");
+    };
     let originalSize = adminQuestions.size();
     let filteredQuestions = adminQuestions.filter(func(q) { q.id != id });
     let newSize = filteredQuestions.size();

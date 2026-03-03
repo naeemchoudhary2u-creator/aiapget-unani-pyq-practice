@@ -17,28 +17,25 @@ export const Question = IDL.Record({
   'questionText' : IDL.Text,
   'correctAnswerIndex' : IDL.Nat,
 });
-export const BillingCycle = IDL.Variant({
-  'monthly' : IDL.Null,
-  'yearly' : IDL.Null,
-});
-export const SubscriptionPlan = IDL.Record({
-  'id' : IDL.Nat,
-  'features' : IDL.Vec(IDL.Text),
-  'name' : IDL.Text,
-  'billingCycle' : BillingCycle,
-  'price' : IDL.Float64,
-});
 export const UserRole = IDL.Variant({
   'admin' : IDL.Null,
   'user' : IDL.Null,
   'guest' : IDL.Null,
 });
-export const UserProfile = IDL.Record({ 'name' : IDL.Text });
+export const UserProfile = IDL.Record({
+  'age' : IDL.Nat,
+  'name' : IDL.Text,
+  'gender' : IDL.Text,
+});
+export const SubscriptionSettings = IDL.Record({
+  'yearlyPrice' : IDL.Nat,
+  'monthlyPrice' : IDL.Nat,
+  'freeTrialDays' : IDL.Nat,
+});
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'addQuestion' : IDL.Func([Question], [IDL.Bool], []),
-  'addSubscriptionPlan' : IDL.Func([SubscriptionPlan], [IDL.Bool], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'getAdminQuestions' : IDL.Func([], [IDL.Vec(Question)], ['query']),
   'getByTopic' : IDL.Func([IDL.Text], [IDL.Vec(Question)], ['query']),
@@ -46,7 +43,7 @@ export const idlService = IDL.Service({
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getQuestions' : IDL.Func([], [IDL.Vec(Question)], ['query']),
-  'getSubscriptionPlans' : IDL.Func([], [IDL.Vec(SubscriptionPlan)], ['query']),
+  'getSubscriptionSettings' : IDL.Func([], [SubscriptionSettings], ['query']),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
@@ -56,6 +53,7 @@ export const idlService = IDL.Service({
   'recordAttempt' : IDL.Func([IDL.Nat, IDL.Nat], [IDL.Bool], []),
   'removeQuestion' : IDL.Func([IDL.Nat], [IDL.Bool], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'updateSubscriptionSettings' : IDL.Func([SubscriptionSettings], [], []),
 });
 
 export const idlInitArgs = [];
@@ -70,28 +68,25 @@ export const idlFactory = ({ IDL }) => {
     'questionText' : IDL.Text,
     'correctAnswerIndex' : IDL.Nat,
   });
-  const BillingCycle = IDL.Variant({
-    'monthly' : IDL.Null,
-    'yearly' : IDL.Null,
-  });
-  const SubscriptionPlan = IDL.Record({
-    'id' : IDL.Nat,
-    'features' : IDL.Vec(IDL.Text),
-    'name' : IDL.Text,
-    'billingCycle' : BillingCycle,
-    'price' : IDL.Float64,
-  });
   const UserRole = IDL.Variant({
     'admin' : IDL.Null,
     'user' : IDL.Null,
     'guest' : IDL.Null,
   });
-  const UserProfile = IDL.Record({ 'name' : IDL.Text });
+  const UserProfile = IDL.Record({
+    'age' : IDL.Nat,
+    'name' : IDL.Text,
+    'gender' : IDL.Text,
+  });
+  const SubscriptionSettings = IDL.Record({
+    'yearlyPrice' : IDL.Nat,
+    'monthlyPrice' : IDL.Nat,
+    'freeTrialDays' : IDL.Nat,
+  });
   
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'addQuestion' : IDL.Func([Question], [IDL.Bool], []),
-    'addSubscriptionPlan' : IDL.Func([SubscriptionPlan], [IDL.Bool], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'getAdminQuestions' : IDL.Func([], [IDL.Vec(Question)], ['query']),
     'getByTopic' : IDL.Func([IDL.Text], [IDL.Vec(Question)], ['query']),
@@ -99,11 +94,7 @@ export const idlFactory = ({ IDL }) => {
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getQuestions' : IDL.Func([], [IDL.Vec(Question)], ['query']),
-    'getSubscriptionPlans' : IDL.Func(
-        [],
-        [IDL.Vec(SubscriptionPlan)],
-        ['query'],
-      ),
+    'getSubscriptionSettings' : IDL.Func([], [SubscriptionSettings], ['query']),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
@@ -113,6 +104,7 @@ export const idlFactory = ({ IDL }) => {
     'recordAttempt' : IDL.Func([IDL.Nat, IDL.Nat], [IDL.Bool], []),
     'removeQuestion' : IDL.Func([IDL.Nat], [IDL.Bool], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'updateSubscriptionSettings' : IDL.Func([SubscriptionSettings], [], []),
   });
 };
 

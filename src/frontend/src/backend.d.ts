@@ -7,13 +7,6 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
-export interface SubscriptionPlan {
-    id: bigint;
-    features: Array<string>;
-    name: string;
-    billingCycle: BillingCycle;
-    price: number;
-}
 export interface Question {
     id: bigint;
     topic: string;
@@ -24,11 +17,14 @@ export interface Question {
     correctAnswerIndex: bigint;
 }
 export interface UserProfile {
+    age: bigint;
     name: string;
+    gender: string;
 }
-export enum BillingCycle {
-    monthly = "monthly",
-    yearly = "yearly"
+export interface SubscriptionSettings {
+    yearlyPrice: bigint;
+    monthlyPrice: bigint;
+    freeTrialDays: bigint;
 }
 export enum UserRole {
     admin = "admin",
@@ -37,7 +33,6 @@ export enum UserRole {
 }
 export interface backendInterface {
     addQuestion(newQuestion: Question): Promise<boolean>;
-    addSubscriptionPlan(newPlan: SubscriptionPlan): Promise<boolean>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     getAdminQuestions(): Promise<Array<Question>>;
     getByTopic(topic: string): Promise<Array<Question>>;
@@ -45,10 +40,11 @@ export interface backendInterface {
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getQuestions(): Promise<Array<Question>>;
-    getSubscriptionPlans(): Promise<Array<SubscriptionPlan>>;
+    getSubscriptionSettings(): Promise<SubscriptionSettings>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
     recordAttempt(questionId: bigint, answerIndex: bigint): Promise<boolean>;
     removeQuestion(id: bigint): Promise<boolean>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    updateSubscriptionSettings(newSettings: SubscriptionSettings): Promise<void>;
 }
