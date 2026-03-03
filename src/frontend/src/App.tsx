@@ -1,13 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import AppHeader from "./components/AppHeader";
 import type { Question } from "./data/questions";
-import { useInternetIdentity } from "./hooks/useInternetIdentity";
 import AdminPanelScreen from "./pages/AdminPanelScreen";
 import HistoryScreen from "./pages/HistoryScreen";
 import HomeScreen from "./pages/HomeScreen";
-import LoginScreen from "./pages/LoginScreen";
 import PaymentMethodSelectorScreen from "./pages/PaymentMethodSelectorScreen";
 import QuizScreen from "./pages/QuizScreen";
 import ResultsScreen from "./pages/ResultsScreen";
@@ -44,31 +41,10 @@ const HEADER_HIDDEN_SCREENS = new Set(["quiz", "results", "review"]);
 
 function AppContent() {
   const [screen, setScreen] = useState<Screen>({ name: "home" });
-  const { identity, isInitializing } = useInternetIdentity();
 
   const navigateTo = (s: Screen) => setScreen(s);
 
   const showHeader = !HEADER_HIDDEN_SCREENS.has(screen.name);
-
-  // Show loading spinner while identity is initializing
-  if (isInitializing) {
-    return (
-      <div
-        className="min-h-screen bg-background flex items-center justify-center"
-        data-ocid="app.loading_state"
-      >
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-10 h-10 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Loading…</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Show login screen if not authenticated or anonymous
-  if (!identity || identity.getPrincipal().isAnonymous()) {
-    return <LoginScreen />;
-  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
