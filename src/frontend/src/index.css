@@ -1,0 +1,147 @@
+@font-face {
+  font-family: "Playfair Display";
+  src: url("/assets/fonts/PlayfairDisplay-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Outfit";
+  src: url("/assets/fonts/Outfit-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 0.75rem;
+
+    /* Eye-friendly warm parchment theme — soft ivory background, dark ink text, muted teal & amber accents */
+
+    /* Soft warm ivory — not stark white, reduces glare */
+    --background: 0.94 0.016 82;
+    /* Deep warm ink — high contrast on ivory, ~14:1 ratio */
+    --foreground: 0.16 0.028 45;
+
+    /* Card slightly lighter than background for gentle layering */
+    --card: 0.97 0.01 78;
+    --card-foreground: 0.16 0.028 45;
+
+    --popover: 0.97 0.01 78;
+    --popover-foreground: 0.16 0.028 45;
+
+    /* Muted teal primary — softer than deep teal, still distinct */
+    --primary: 0.34 0.065 192;
+    /* White text on teal primary — sufficient contrast */
+    --primary-foreground: 0.98 0.005 80;
+
+    --secondary: 0.9 0.022 82;
+    --secondary-foreground: 0.22 0.038 192;
+
+    /* Muted surface — warm light grey-beige */
+    --muted: 0.9 0.016 78;
+    /* Muted foreground — dark enough for 4.5:1 on muted/card backgrounds */
+    --muted-foreground: 0.42 0.028 55;
+
+    --accent: 0.88 0.03 82;
+    --accent-foreground: 0.22 0.038 192;
+
+    /* Destructive — warm red, readable */
+    --destructive: 0.52 0.2 22;
+    --destructive-foreground: 0.98 0.005 80;
+
+    --border: 0.84 0.022 72;
+    --input: 0.84 0.022 72;
+    --ring: 0.34 0.065 192;
+
+    /* Gold — darkened for text legibility (L=0.58 gives ~4.5:1 on ivory) */
+    --gold: 0.58 0.13 72;
+
+    /* Teal accent — medium teal for text use */
+    --teal: 0.44 0.09 192;
+
+    /* Success green — dark enough for text on light backgrounds */
+    --success: 0.44 0.13 152;
+    --success-foreground: 0.98 0.005 80;
+
+    --chart-1: 0.58 0.13 72;
+    --chart-2: 0.44 0.09 192;
+    --chart-3: 0.52 0.2 22;
+    --chart-4: 0.44 0.13 152;
+    --chart-5: 0.55 0.11 295;
+
+    --sidebar: 0.92 0.018 78;
+    --sidebar-foreground: 0.16 0.028 45;
+    --sidebar-primary: 0.34 0.065 192;
+    --sidebar-primary-foreground: 0.98 0.005 80;
+    --sidebar-accent: 0.88 0.03 82;
+    --sidebar-accent-foreground: 0.22 0.038 192;
+    --sidebar-border: 0.84 0.022 72;
+    --sidebar-ring: 0.34 0.065 192;
+  }
+
+  .dark {
+    --background: 0.14 0.025 200;
+    --foreground: 0.93 0.015 80;
+
+    --card: 0.18 0.03 200;
+    --card-foreground: 0.93 0.015 80;
+
+    --popover: 0.22 0.035 200;
+    --popover-foreground: 0.93 0.015 80;
+
+    --primary: 0.68 0.1 195;
+    --primary-foreground: 0.12 0.02 200;
+
+    --secondary: 0.22 0.035 200;
+    --secondary-foreground: 0.88 0.015 80;
+
+    --muted: 0.22 0.03 200;
+    --muted-foreground: 0.68 0.03 80;
+
+    --accent: 0.28 0.04 200;
+    --accent-foreground: 0.88 0.015 80;
+
+    --destructive: 0.65 0.2 25;
+    --destructive-foreground: 0.97 0.01 80;
+
+    --border: 1 0 0 / 12%;
+    --input: 1 0 0 / 15%;
+    --ring: 0.68 0.1 195;
+
+    --gold: 0.78 0.14 75;
+    --teal: 0.68 0.1 195;
+    --success: 0.62 0.14 155;
+    --success-foreground: 0.12 0.02 200;
+
+    --chart-1: 0.78 0.14 75;
+    --chart-2: 0.68 0.1 195;
+    --chart-3: 0.65 0.2 25;
+    --chart-4: 0.62 0.14 155;
+    --chart-5: 0.65 0.12 300;
+
+    --sidebar: 0.18 0.03 200;
+    --sidebar-foreground: 0.93 0.015 80;
+    --sidebar-primary: 0.68 0.1 195;
+    --sidebar-primary-foreground: 0.12 0.02 200;
+    --sidebar-accent: 0.28 0.04 200;
+    --sidebar-accent-foreground: 0.88 0.015 80;
+    --sidebar-border: 1 0 0 / 12%;
+    --sidebar-ring: 0.68 0.1 195;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Outfit", system-ui, sans-serif;
+  }
+}
