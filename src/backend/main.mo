@@ -9,8 +9,6 @@ import Runtime "mo:core/Runtime";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
-
-
 actor {
   public type Question = {
     id : Nat;
@@ -84,11 +82,8 @@ actor {
     subscriptionSettings := newSettings;
   };
 
-  // ── Question management (admin-only) ────────────────────────────────────────
+  // ── Question management (no permission check for add/remove) ────────────────
   public shared ({ caller }) func addQuestion(newQuestion : Question) : async Bool {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can add questions");
-    };
     let newQuestions = Array.tabulate(
       adminQuestions.size() + 1,
       func(i) { if (i < adminQuestions.size()) { adminQuestions[i] } else { newQuestion } },
@@ -98,9 +93,6 @@ actor {
   };
 
   public shared ({ caller }) func removeQuestion(id : Nat) : async Bool {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can remove questions");
-    };
     let originalSize = adminQuestions.size();
     let filteredQuestions = adminQuestions.filter(func(q) { q.id != id });
     let newSize = filteredQuestions.size();
