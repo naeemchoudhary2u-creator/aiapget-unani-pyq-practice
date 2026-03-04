@@ -1,5 +1,6 @@
 import {
   BookOpen,
+  CheckCircle2,
   ChevronRight,
   Clock,
   CreditCard,
@@ -7,7 +8,9 @@ import {
   ShieldCheck,
   Sparkles,
   Trophy,
+  X,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import type { Screen } from "../App";
 import { TOPICS, questions as staticQuestions } from "../data/questions";
 import { useAllQuestions } from "../hooks/useAdminQueries";
@@ -27,6 +30,14 @@ function shuffleArray<T>(arr: T[]): T[] {
 
 export default function HomeScreen({ onNavigate }: HomeScreenProps) {
   const { data: allQuestions = staticQuestions } = useAllQuestions();
+  const [showPaymentBanner, setShowPaymentBanner] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem("aiapget_payment_submitted") === "true") {
+      setShowPaymentBanner(true);
+      localStorage.removeItem("aiapget_payment_submitted");
+    }
+  }, []);
 
   // Compute unique topics from merged question set
   const allTopics = Array.from(new Set(allQuestions.map((q) => q.topic)));
@@ -80,6 +91,34 @@ export default function HomeScreen({ onNavigate }: HomeScreenProps) {
   return (
     <div className="flex flex-col">
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-6 space-y-6">
+        {/* Subscription submitted success banner */}
+        {showPaymentBanner && (
+          <div
+            data-ocid="home.subscription.success_state"
+            className="flex items-start gap-3 bg-success/10 border border-success/40 rounded-2xl px-4 py-3"
+          >
+            <CheckCircle2 className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-success font-body">
+                Subscription Submitted!
+              </p>
+              <p className="text-xs text-muted-foreground font-body mt-0.5">
+                Your payment has been received. The admin will verify and
+                activate your subscription shortly.
+              </p>
+            </div>
+            <button
+              type="button"
+              data-ocid="home.subscription.close_button"
+              onClick={() => setShowPaymentBanner(false)}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Dismiss"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         {/* Hero Banner */}
         <section className="relative rounded-2xl overflow-hidden shadow-lg">
           <img

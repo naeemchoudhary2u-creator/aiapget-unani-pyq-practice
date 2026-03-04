@@ -5,9 +5,11 @@ import {
   CheckCircle2,
   Clock,
   ExternalLink,
+  Home,
 } from "lucide-react";
 import { useState } from "react";
 import type { Screen } from "../App";
+import { getDeviceId } from "../utils/deviceId";
 
 interface PaymentMethodSelectorScreenProps {
   planName: string;
@@ -18,15 +20,9 @@ interface PaymentMethodSelectorScreenProps {
 
 const RAZORPAY_BASE = "https://razorpay.me/@aiapgetunani";
 
-// Build Razorpay URL with amount pre-filled.
-// razorpay.me handles support ?amount= in paise (1 rupee = 100 paise).
-// planPrice is like "₹100" or "₹800" — strip the ₹ symbol, convert to paise.
-function getRazorpayLink(planPrice: string): string {
-  const rupees = Number.parseInt(planPrice.replace(/[^\d]/g, ""), 10);
-  if (!Number.isNaN(rupees) && rupees > 0) {
-    const paise = rupees * 100;
-    return `${RAZORPAY_BASE}?amount=${paise}`;
-  }
+// razorpay.me payment handle pages do not support query parameters.
+// Always open the base URL directly to avoid Razorpay error pages.
+function getRazorpayLink(_planPrice: string): string {
   return RAZORPAY_BASE;
 }
 
@@ -68,11 +64,12 @@ function submitPaymentForVerification(
   paymentDetails: { utrId: string; paymentMethod: string; amount: string },
 ): string {
   const paymentId = `PAY_${Date.now()}`;
+  const deviceId = getDeviceId();
 
   // Save subscription as pending — NOT yet active
   localStorage.setItem(
     "aiapget_subscription",
-    JSON.stringify({ plan: cycle, status: "pending", paymentId }),
+    JSON.stringify({ plan: cycle, status: "pending", paymentId, deviceId }),
   );
 
   // Save payment record for admin review
@@ -94,6 +91,7 @@ function submitPaymentForVerification(
     utrId: paymentDetails.utrId.trim(),
     paymentMethod: paymentDetails.paymentMethod,
     status: "pending",
+    deviceId,
     userId: (() => {
       try {
         return (
@@ -163,6 +161,8 @@ export default function PaymentMethodSelectorScreen({
       paymentMethod: selectedMethod ?? "unknown",
       amount: planPrice,
     });
+    // Mark that we should show a success banner on home
+    localStorage.setItem("aiapget_payment_submitted", "true");
     setPendingVerification(true);
   };
 
@@ -175,16 +175,16 @@ export default function PaymentMethodSelectorScreen({
           data-ocid="payment.pending_state"
         >
           <div className="flex items-center justify-center">
-            <div className="w-16 h-16 rounded-full bg-amber-500/15 flex items-center justify-center">
-              <Clock className="w-9 h-9 text-amber-500" />
+            <div className="w-16 h-16 rounded-full bg-success/15 flex items-center justify-center">
+              <CheckCircle2 className="w-9 h-9 text-success" />
             </div>
           </div>
           <h2 className="text-xl font-heading font-bold text-foreground">
-            Verification in Progress
+            Payment Submitted!
           </h2>
           <p className="text-sm text-muted-foreground font-body">
-            Your payment details have been submitted. The admin will verify your
-            UTR and activate your subscription shortly.
+            Your payment details have been submitted successfully. The admin
+            will verify your UTR and activate your subscription shortly.
           </p>
           <div className="bg-muted rounded-xl p-3 text-sm font-body text-muted-foreground space-y-1">
             <p>
@@ -200,16 +200,20 @@ export default function PaymentMethodSelectorScreen({
               </strong>
             </p>
           </div>
-          <p className="text-xs text-muted-foreground font-body">
-            Once approved, you will have full access. Please check back in a
-            little while.
-          </p>
+          <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 rounded-xl px-3 py-2">
+            <Clock className="w-4 h-4 text-amber-500 flex-shrink-0" />
+            <p className="text-xs text-amber-600 font-body text-left">
+              Once approved by admin, you will have full access. Please check
+              back shortly.
+            </p>
+          </div>
           <Button
             data-ocid="payment.primary_button"
-            className="w-full font-body bg-primary hover:bg-primary/90 text-primary-foreground border-0"
+            className="w-full font-body bg-primary hover:bg-primary/90 text-primary-foreground border-0 flex items-center justify-center gap-2"
             onClick={() => onNavigate({ name: "home" })}
           >
-            Go to Home
+            <CheckCircle2 className="w-4 h-4" />
+            Subscription Done — Go to Home
           </Button>
         </div>
       </div>
@@ -219,16 +223,27 @@ export default function PaymentMethodSelectorScreen({
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <main className="flex-1 max-w-lg mx-auto w-full px-4 py-6 space-y-5">
-        {/* Back */}
-        <button
-          type="button"
-          data-ocid="payment.link"
-          onClick={() => onNavigate({ name: "subscription" })}
-          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors font-body"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Plans
-        </button>
+        {/* Navigation row */}
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            data-ocid="payment.link"
+            onClick={() => onNavigate({ name: "subscription" })}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors font-body"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Plans
+          </button>
+          <button
+            type="button"
+            data-ocid="payment.home.link"
+            onClick={() => onNavigate({ name: "home" })}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors font-body"
+          >
+            <Home className="w-4 h-4" />
+            Home
+          </button>
+        </div>
 
         {/* Order Summary */}
         <div className="bg-card border border-gold/30 rounded-2xl p-4 flex items-center justify-between">

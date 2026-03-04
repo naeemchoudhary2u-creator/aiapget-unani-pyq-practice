@@ -49,6 +49,7 @@ interface PaymentRecord {
   paymentMethod: string;
   userId: string;
   userName: string;
+  deviceId?: string;
   status?: "pending" | "approved" | "rejected";
 }
 
@@ -133,22 +134,25 @@ export default function AdminPanelScreen({ onBack }: AdminPanelScreenProps) {
   }, [activeTab]);
 
   const handleApprovePayment = (record: PaymentRecord) => {
-    // Activate subscription for this user
+    // Activate subscription for this user and bind to their device
     const days = record.plan === "yearly" ? 365 : 30;
     const expiresAt = Date.now() + days * 24 * 60 * 60 * 1000;
+    const boundDeviceId = record.deviceId ?? undefined;
+
+    const subscriptionData = {
+      plan: record.plan,
+      status: "approved",
+      expiresAt,
+      boundDeviceId, // Lock to the device that submitted payment
+    };
 
     // Update the subscription key for the current device
-    // Since this is localStorage-based, we update the shared subscription store
-    // keyed by userId. For single-user device apps the main key is used.
     const subKey =
       record.userId && record.userId !== "unknown"
         ? `aiapget_subscription_${record.userId}`
         : "aiapget_subscription";
 
-    localStorage.setItem(
-      subKey,
-      JSON.stringify({ plan: record.plan, status: "approved", expiresAt }),
-    );
+    localStorage.setItem(subKey, JSON.stringify(subscriptionData));
 
     // Also update the main key (for the current user on this device)
     const currentUserId = (() => {
@@ -164,13 +168,43 @@ export default function AdminPanelScreen({ onBack }: AdminPanelScreenProps) {
     if (currentUserId === record.userId || record.userId === "unknown") {
       localStorage.setItem(
         "aiapget_subscription",
-        JSON.stringify({ plan: record.plan, status: "approved", expiresAt }),
+        JSON.stringify(subscriptionData),
       );
     }
 
     // Update payment record status
     const updated = loadPaymentRecords().map((r) =>
       r.id === record.id ? { ...r, status: "approved" as const } : r,
+    );
+    localStorage.setItem("aiapget_payment_records", JSON.stringify(updated));
+    setPaymentRecords(updated);
+  };
+
+  const handleResetDeviceBinding = (record: PaymentRecord) => {
+    // Clear device binding from the subscription — allows user to use any device
+    const subKey =
+      record.userId && record.userId !== "unknown"
+        ? `aiapget_subscription_${record.userId}`
+        : "aiapget_subscription";
+
+    try {
+      const raw =
+        localStorage.getItem(subKey) ??
+        localStorage.getItem("aiapget_subscription");
+      if (raw) {
+        const sub = JSON.parse(raw);
+        sub.boundDeviceId = undefined;
+        localStorage.setItem(subKey, JSON.stringify(sub));
+        // Also update main key if applicable
+        if (record.userId === "unknown") {
+          localStorage.setItem("aiapget_subscription", JSON.stringify(sub));
+        }
+      }
+    } catch {}
+
+    // Update payment record to remove device binding info
+    const updated = loadPaymentRecords().map((r) =>
+      r.id === record.id ? { ...r, deviceId: undefined } : r,
     );
     localStorage.setItem("aiapget_payment_records", JSON.stringify(updated));
     setPaymentRecords(updated);
@@ -871,6 +905,16 @@ export default function AdminPanelScreen({ onBack }: AdminPanelScreenProps) {
                           {record.paymentMethod}
                         </p>
                       </div>
+                      {record.deviceId && (
+                        <div className="col-span-2">
+                          <p className="text-muted-foreground mb-0.5 flex items-center gap-1">
+                            Bound Device ID
+                          </p>
+                          <p className="font-mono text-[11px] text-foreground bg-muted rounded-lg px-2 py-1.5 select-all break-all">
+                            {record.deviceId}
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     {/* Approve / Reject — only for pending */}
@@ -901,10 +945,22 @@ export default function AdminPanelScreen({ onBack }: AdminPanelScreenProps) {
                     )}
 
                     {status === "approved" && (
-                      <p className="text-xs text-success font-medium flex items-center gap-1 pt-1">
-                        <CheckCircle className="w-3.5 h-3.5" />
-                        Subscription activated for this user
-                      </p>
+                      <div className="pt-1 space-y-2">
+                        <p className="text-xs text-success font-medium flex items-center gap-1">
+                          <CheckCircle className="w-3.5 h-3.5" />
+                          Subscription activated — bound to 1 device
+                        </p>
+                        {record.deviceId && (
+                          <button
+                            type="button"
+                            data-ocid={`admin.payment.reset_device_button.${idx + 1}`}
+                            onClick={() => handleResetDeviceBinding(record)}
+                            className="text-xs text-amber-600 hover:text-amber-700 underline underline-offset-2 font-medium transition-colors"
+                          >
+                            Reset Device Binding (allow transfer to new device)
+                          </button>
+                        )}
+                      </div>
                     )}
                     {status === "rejected" && (
                       <p className="text-xs text-destructive font-medium flex items-center gap-1 pt-1">

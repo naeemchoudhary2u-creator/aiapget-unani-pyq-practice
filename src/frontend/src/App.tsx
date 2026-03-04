@@ -6,6 +6,7 @@ import type { Question } from "./data/questions";
 import AboutScreen from "./pages/AboutScreen";
 import AdminPanelScreen from "./pages/AdminPanelScreen";
 import ContactScreen from "./pages/ContactScreen";
+import DeviceBlockedScreen from "./pages/DeviceBlockedScreen";
 import HistoryScreen from "./pages/HistoryScreen";
 import HomeScreen from "./pages/HomeScreen";
 import LoginScreen from "./pages/LoginScreen";
@@ -17,6 +18,7 @@ import ResultsScreen from "./pages/ResultsScreen";
 import ReviewScreen from "./pages/ReviewScreen";
 import SubscriptionPlansScreen from "./pages/SubscriptionPlansScreen";
 import TopicBrowserScreen from "./pages/TopicBrowserScreen";
+import { getDeviceId, isDeviceAllowed } from "./utils/deviceId";
 
 export type Screen =
   | { name: "home" }
@@ -85,7 +87,12 @@ function isProfileComplete() {
   }
 }
 
-function getSubscriptionStatus(): "active" | "pending" | "rejected" | "none" {
+function getSubscriptionStatus():
+  | "active"
+  | "pending"
+  | "rejected"
+  | "none"
+  | "device_blocked" {
   try {
     const raw = localStorage.getItem("aiapget_subscription");
     if (!raw) return "none";
@@ -93,18 +100,25 @@ function getSubscriptionStatus(): "active" | "pending" | "rejected" | "none" {
     if (s.status === "pending") return "pending";
     if (s.status === "rejected") return "rejected";
     if (s.status === "approved") {
-      return typeof s.expiresAt === "number" && s.expiresAt > Date.now()
-        ? "active"
-        : "none";
+      const valid = typeof s.expiresAt === "number" && s.expiresAt > Date.now();
+      if (!valid) return "none";
+      // Device binding check — only applies once a device is bound
+      if (!isDeviceAllowed(s.boundDeviceId)) return "device_blocked";
+      return "active";
     }
     // Legacy records (no status field) — treat as active if expiry is valid
-    return typeof s.expiresAt === "number" && s.expiresAt > Date.now()
-      ? "active"
-      : "none";
+    if (typeof s.expiresAt === "number" && s.expiresAt > Date.now()) {
+      if (!isDeviceAllowed(s.boundDeviceId)) return "device_blocked";
+      return "active";
+    }
+    return "none";
   } catch {
     return "none";
   }
 }
+
+// Ensure device ID is initialised on every load
+getDeviceId();
 
 // ────────────────────────────────────────────────────────────────────────────
 
@@ -122,6 +136,7 @@ function AppContent() {
   const profileComplete = isProfileComplete();
   const subscriptionStatus = getSubscriptionStatus();
   const activeSubscription = subscriptionStatus === "active";
+  const deviceBlocked = subscriptionStatus === "device_blocked";
 
   // Determine what to show based on gate state
   // Allow admin screen without subscription check
@@ -136,6 +151,11 @@ function AppContent() {
         }}
       />
     );
+  }
+
+  // Device binding block — subscription is active on a different device
+  if (deviceBlocked && !isAdminScreen) {
+    return <DeviceBlockedScreen />;
   }
 
   if (!profileComplete) {

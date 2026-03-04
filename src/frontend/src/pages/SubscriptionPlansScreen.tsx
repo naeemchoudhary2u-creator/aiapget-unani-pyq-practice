@@ -5,15 +5,22 @@ import {
   Clock,
   Crown,
   Gift,
+  Home,
   Star,
   Zap,
 } from "lucide-react";
 import { useState } from "react";
 import type { Screen } from "../App";
+import { getDeviceId } from "../utils/deviceId";
 
 interface SubscriptionPlansScreenProps {
   onNavigate: (screen: Screen) => void;
-  subscriptionStatus?: "active" | "pending" | "rejected" | "none";
+  subscriptionStatus?:
+    | "active"
+    | "pending"
+    | "rejected"
+    | "none"
+    | "device_blocked";
 }
 
 function getSubscriptionPrices() {
@@ -53,9 +60,15 @@ export default function SubscriptionPlansScreen({
 
   const handleTrialStart = () => {
     const expiresAt = Date.now() + prices.trialDays * 24 * 60 * 60 * 1000;
+    const boundDeviceId = getDeviceId();
     localStorage.setItem(
       "aiapget_subscription",
-      JSON.stringify({ plan: "trial", expiresAt }),
+      JSON.stringify({
+        plan: "trial",
+        status: "approved",
+        expiresAt,
+        boundDeviceId,
+      }),
     );
     localStorage.setItem("aiapget_trial_used", "true");
     onNavigate({ name: "home" });
@@ -76,6 +89,17 @@ export default function SubscriptionPlansScreen({
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <main className="flex-1 max-w-lg mx-auto w-full px-4 py-6 space-y-5">
+        {/* Home button */}
+        <button
+          type="button"
+          data-ocid="subscription.home.link"
+          onClick={() => onNavigate({ name: "home" })}
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors font-body"
+        >
+          <Home className="w-4 h-4" />
+          Back to Home
+        </button>
+
         {/* Pending verification notice */}
         {subscriptionStatus === "pending" && (
           <div
