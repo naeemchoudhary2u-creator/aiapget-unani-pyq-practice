@@ -32,7 +32,7 @@ export type Screen =
       startTime: number;
     }
   | { name: "review"; questions: Question[]; answers: number[] }
-  | { name: "topics" }
+  | { name: "topics"; mode?: "topic" | "year" }
   | { name: "history" }
   | { name: "admin" }
   | { name: "subscription" }
@@ -246,6 +246,7 @@ function AppContent() {
 
         {screen.name === "topics" && (
           <TopicBrowserScreen
+            initialMode={screen.mode ?? "topic"}
             onStartQuiz={(qs) => navigateTo({ name: "quiz", questions: qs })}
             onBack={() => navigateTo({ name: "home" })}
           />

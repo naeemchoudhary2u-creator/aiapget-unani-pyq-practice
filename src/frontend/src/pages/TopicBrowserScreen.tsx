@@ -12,6 +12,7 @@ import { type Question, TOPICS, YEARS } from "../data/questions";
 import { useAllQuestions } from "../hooks/useAdminQueries";
 
 interface TopicBrowserScreenProps {
+  initialMode?: BrowseMode;
   onStartQuiz: (questions: Question[]) => void;
   onBack: () => void;
 }
@@ -28,10 +29,11 @@ function shuffleArray<T>(arr: T[]): T[] {
 }
 
 export default function TopicBrowserScreen({
+  initialMode = "topic",
   onStartQuiz,
   onBack,
 }: TopicBrowserScreenProps) {
-  const [mode, setMode] = useState<BrowseMode>("topic");
+  const [mode, setMode] = useState<BrowseMode>(initialMode);
   const [expandedTopic, setExpandedTopic] = useState<string | null>(null);
   const [expandedYear, setExpandedYear] = useState<number | null>(null);
 

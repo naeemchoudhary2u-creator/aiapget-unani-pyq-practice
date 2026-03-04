@@ -1,22 +1,26 @@
 # AIAPGET Unani PYQ Practice
 
 ## Current State
-The app has a backend `addQuestion` function protected by `#admin` role check. The frontend has an admin password prompt (Naeem9472) that gates access to the Add Question form. However, since users call the backend anonymously (no Internet Identity login), every call to `addQuestion` fails with "Unauthorized: Only admins can add questions" — the backend rejects anonymous callers.
-
-Similarly, `removeQuestion` has the same admin-only backend check.
+- Full-stack app with Motoko backend and React frontend
+- Admin panel with password protection (Naeem9472) to add/view/delete questions
+- Questions are stored in backend but NOT in stable storage — they get wiped on every deployment
+- Logo and hero banner images are referenced in code but the generated image files do not exist
+- Subscription system with UPI/Razorpay payment and admin approval workflow
 
 ## Requested Changes (Diff)
 
 ### Add
-- Nothing new
+- Stable storage for questions so they persist across canister upgrades/deployments
+- Regenerated logo, hero banner, and PWA icon image assets
 
 ### Modify
-- `addQuestion` backend function: remove the `#admin` permission check so anonymous callers can add questions (security is handled by the frontend password prompt)
-- `removeQuestion` backend function: remove the `#admin` permission check so anonymous callers can remove questions (security is handled by the frontend password prompt)
+- Backend `adminQuestions` variable must use `stable var` so data survives upgrades
+- All other backend functionality remains unchanged
 
 ### Remove
-- The `#admin` role guard from `addQuestion` and `removeQuestion` in Motoko backend
+- Nothing removed
 
 ## Implementation Plan
-1. Regenerate backend Motoko code with `addQuestion` and `removeQuestion` as open shared functions (no caller check)
-2. All other functions remain unchanged
+1. Regenerate Motoko backend with `stable var adminQuestions` so questions persist across upgrades
+2. Images are already regenerated (app-logo, hero-banner, icons)
+3. No frontend code changes needed — existing hooks/components already work correctly

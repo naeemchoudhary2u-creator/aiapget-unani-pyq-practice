@@ -58,13 +58,13 @@ export default function HomeScreen({ onNavigate }: HomeScreenProps) {
       icon: <List className="w-6 h-6" />,
       title: "Browse by Topic",
       desc: `${allTopics.length} Unani subject categories`,
-      action: () => onNavigate({ name: "topics" }),
+      action: () => onNavigate({ name: "topics", mode: "topic" }),
     },
     {
       icon: <Clock className="w-6 h-6" />,
       title: "Browse by Year",
       desc: "Filter questions by exam year",
-      action: () => onNavigate({ name: "topics" }),
+      action: () => onNavigate({ name: "topics", mode: "year" }),
     },
     {
       icon: <Trophy className="w-6 h-6" />,

@@ -101,15 +101,15 @@ actor {
     wasRemoved;
   };
 
-  public query func getAdminQuestions() : async [Question] {
-    adminQuestions;
-  };
-
-  // ── Public question query functions (open to all) ───────────────────────────
   public query func getQuestions() : async [Question] {
     adminQuestions;
   };
 
+  public query func getAdminQuestions() : async [Question] {
+    adminQuestions;
+  };
+
+  // New: Public question query functions (open to all)
   public query func getByTopic(topic : Text) : async [Question] {
     adminQuestions.filter(func(q) { q.topic == topic });
   };
