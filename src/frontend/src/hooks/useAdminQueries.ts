@@ -133,7 +133,9 @@ export function useAllQuestions() {
         return staticQuestions;
       }
     },
-    enabled: !!actor,
+    // Always enabled — returns staticQuestions immediately when actor is null,
+    // then re-fetches with backend data once actor is available
+    enabled: true,
     staleTime: 0,
     refetchOnMount: true,
     retry: false,

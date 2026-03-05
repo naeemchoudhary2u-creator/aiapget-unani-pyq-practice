@@ -8,7 +8,12 @@ import {
   Play,
 } from "lucide-react";
 import { useState } from "react";
-import { type Question, TOPICS, YEARS } from "../data/questions";
+import {
+  type Question,
+  TOPICS,
+  YEARS,
+  questions as staticQuestions,
+} from "../data/questions";
 import { useAllQuestions } from "../hooks/useAdminQueries";
 
 interface TopicBrowserScreenProps {
@@ -37,7 +42,7 @@ export default function TopicBrowserScreen({
   const [expandedTopic, setExpandedTopic] = useState<string | null>(null);
   const [expandedYear, setExpandedYear] = useState<number | null>(null);
 
-  const { data: allQuestions = [], isLoading } = useAllQuestions();
+  const { data: allQuestions = staticQuestions, isLoading } = useAllQuestions();
 
   // Build topic list: include all static topics + any new topics from backend questions
   const allTopics = Array.from(
