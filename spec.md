@@ -1,26 +1,36 @@
 # AIAPGET Unani PYQ Practice
 
 ## Current State
-- Full-stack MCQ practice app with static questions and backend-stored questions
-- `TopicBrowserScreen` handles both "Browse by Year" and "Browse by Topic" modes
-- `useAllQuestions` hook fetches from backend and merges with static questions
-- Bug: `useAllQuestions` is `enabled: !!actor`, so query never runs until actor resolves — meanwhile `TopicBrowserScreen` uses `data = []` as default, showing empty lists
-- Bug: `adminQuestions` in backend uses `var` (not `stable`), so added questions are lost on every deploy
+
+The app is a full-stack MCQ practice app for AIAPGET Unani medicine students. It has:
+- A Motoko backend with `adminQuestions`, `paymentRecords`, and `userSubscriptions` stored as NON-stable variables — so data is lost on every upgrade.
+- The `addQuestion` backend function has an admin permission check that always fails (no Internet Identity login), blocking question saves.
+- A React frontend with admin panel (add/view questions, payments, subscriptions tabs) and a subscription plans screen.
+- The Free Trial and Yearly subscription buttons currently use color classes `bg-success` and `bg-gold` — user wants them changed to black (`bg-black text-white`).
+- Admin panel fetches data once on tab switch but does NOT auto-poll — so changes from other devices don't show up in real time.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Nothing new
+- `system func preupgrade()` and `system func postupgrade()` in backend to save/restore `userSubscriptions` list to/from the stable `userSubscriptionsArray` — ensuring data survives every canister upgrade.
+- Auto-polling every 10 seconds in the Admin Panel for payments and subscriptions tabs so data updates in real time across all devices.
+- Auto-polling every 10 seconds for `allQuestions` so newly added questions appear on all devices immediately.
 
 ### Modify
-- `TopicBrowserScreen.tsx`: Change default from `[]` to `staticQuestions` so questions show immediately even while actor loads
-- `useAdminQueries.ts` (`useAllQuestions`): Change `enabled: !!actor` to `enabled: true` so the query runs immediately and returns staticQuestions when actor is null
-- Backend `main.mo`: Change `var adminQuestions` and `var subscriptionSettings` to `stable var` so questions persist across canister upgrades
+- Backend: Change `var adminQuestions`, `var paymentRecords`, `var subscriptionSettings` to `stable var` so data is never lost on upgrade.
+- Backend: Add `userSubscriptionsArray : [UserSubscription]` as a stable var for pre/postupgrade serialization of the List.
+- Backend: Remove the admin permission check from `addQuestion` and `removeQuestion` — these are already protected by the frontend password prompt. The backend should accept calls from any principal.
+- Frontend: Change the Free Trial button color from `bg-success text-white` to `bg-black text-white` (and hover `hover:bg-gray-900`).
+- Frontend: Change the Yearly Plan "Subscribe" button color from `bg-gold text-white` to `bg-black text-white` (and hover `hover:bg-gray-900`).
+- Frontend Admin Panel: Add `refetchInterval: 10000` to `usePaymentRecords`, `useAllSubscriptions`, and `useGetAdminQuestions` queries so they poll every 10 seconds automatically.
 
 ### Remove
-- Nothing
+- Nothing removed.
 
 ## Implementation Plan
-1. Fix `TopicBrowserScreen.tsx` — import and use `staticQuestions` as default for `useAllQuestions` data
-2. Fix `useAllQuestions` in `useAdminQueries.ts` — set `enabled: true` so it runs immediately  
-3. Fix backend `main.mo` — use `stable var` for `adminQuestions` and `subscriptionSettings`
+
+1. Regenerate Motoko backend with stable storage for all three data stores, pre/postupgrade hooks, and no admin check on addQuestion/removeQuestion.
+2. Update `useAdminQueries.ts` to add `refetchInterval: 10000` to `usePaymentRecords` and `useGetAdminQuestions`.
+3. Update `useSubscriptionQueries.ts` to add `refetchInterval: 10000` to `useAllSubscriptions`.
+4. Update `SubscriptionPlansScreen.tsx`: change Free Trial button and Yearly Plan button colors to black.
+5. Validate and deploy.

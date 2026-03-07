@@ -1,6 +1,5 @@
-import Map "mo:core/Map";
-import Nat "mo:core/Nat";
-import Principal "mo:core/Principal";
+import List "mo:core/List";
+import Array "mo:core/Array";
 
 module {
   type Question = {
@@ -15,32 +14,66 @@ module {
 
   type UserProfile = {
     name : Text;
+    age : Nat;
+    gender : Text;
   };
 
-  type SubscriptionPlan = {
-    id : Nat;
-    name : Text;
-    price : Float;
-    billingCycle : BillingCycle;
-    features : [Text];
+  type SubscriptionSettings = {
+    monthlyPrice : Nat;
+    yearlyPrice : Nat;
+    freeTrialDays : Nat;
   };
 
-  type BillingCycle = {
-    #monthly;
-    #yearly;
+  type PaymentStatus = {
+    #pending;
+    #approved;
+    #rejected;
   };
 
-  type OldActor = {
+  type PaymentRecord = {
+    id : Text;
+    date : Text;
+    plan : Text;
+    amount : Text;
+    utrId : Text;
+    paymentMethod : Text;
+    userId : Text;
+    userName : Text;
+    deviceId : ?Text;
+    status : PaymentStatus;
+    approvedAt : ?Text;
+    rejectedAt : ?Text;
+  };
+
+  public type UserSubscription = {
+    userId : Text;
+    planType : Text;
+    status : Text;
+    deviceId : Text;
+    startDate : Text;
+    expiryDate : Text;
+    paymentRef : Text;
+    lastLoginDevice : Text;
+    userName : Text;
+  };
+
+  public type OldActor = {
     adminQuestions : [Question];
-    subscriptionPlans : Map.Map<Nat, SubscriptionPlan>;
-    userProfiles : Map.Map<Principal, UserProfile>;
+    paymentRecords : [PaymentRecord];
+    userSubscriptions : List.List<UserSubscription>;
+    subscriptionSettings : SubscriptionSettings;
   };
 
-  type NewActor = {
+  public type NewActor = {
     adminQuestions : [Question];
-    subscriptionPlans : Map.Map<Nat, SubscriptionPlan>;
-    userProfiles : Map.Map<Principal, UserProfile>;
+    paymentRecords : [PaymentRecord];
+    userSubscriptions : List.List<UserSubscription>;
+    subscriptionSettings : SubscriptionSettings;
+    userSubscriptionsArray : [UserSubscription];
   };
 
-  public func run(old : OldActor) : NewActor { old };
+  public func run(old : OldActor) : NewActor {
+    let userSubscriptionsArray = old.userSubscriptions.toArray();
+    { old with userSubscriptionsArray };
+  };
 };

@@ -41,6 +41,7 @@ export function useGetAdminQuestions() {
     enabled: !!actor,
     staleTime: 0,
     refetchOnMount: true,
+    refetchInterval: 10000, // Poll every 10s — real-time sync across all devices
     retry: false,
   });
 }
@@ -124,6 +125,7 @@ export function usePaymentRecords() {
     enabled: !!actor,
     staleTime: 0,
     refetchOnMount: true,
+    refetchInterval: 10000, // Poll every 10s — real-time sync across all devices
     retry: false,
   });
 }
@@ -227,6 +229,7 @@ export function useAllQuestions() {
     enabled: true,
     staleTime: 0,
     refetchOnMount: true,
+    refetchInterval: 10000, // Poll every 10s — newly added questions appear everywhere
     retry: false,
   });
 }

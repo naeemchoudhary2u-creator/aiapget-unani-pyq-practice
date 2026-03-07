@@ -55,6 +55,7 @@ export function useAllSubscriptions() {
     enabled: !!actor && !isFetching,
     staleTime: 0,
     refetchOnMount: true,
+    refetchInterval: 10000, // Poll every 10s — admin sees changes from all devices
     retry: false,
   });
 }

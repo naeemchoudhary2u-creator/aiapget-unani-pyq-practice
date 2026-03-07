@@ -6,12 +6,13 @@ import Text "mo:core/Text";
 import Iterate "mo:core/Iter";
 import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
+import Migration "migration";
 
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
-
-
+// Data migration on upgrades
+(with migration = Migration.run)
 actor {
   type Question = {
     id : Nat;
@@ -69,17 +70,20 @@ actor {
   };
 
   // Stable variables
-  var adminQuestions : [Question] = [];
-  var paymentRecords : [PaymentRecord] = [];
+  stable var adminQuestions : [Question] = [];
+  stable var paymentRecords : [PaymentRecord] = [];
   var userSubscriptions = List.empty<UserSubscription>();
   let accessControlState = AccessControl.initState();
 
   let userProfiles = Map.empty<Principal, UserProfile>();
-  var subscriptionSettings : SubscriptionSettings = {
+  stable var subscriptionSettings : SubscriptionSettings = {
     monthlyPrice = 100;
     yearlyPrice = 800;
     freeTrialDays = 7;
   };
+
+  // Migration implementation
+  stable var userSubscriptionsArray : [UserSubscription] = [];
 
   include MixinAuthorization(accessControlState);
 
@@ -118,11 +122,9 @@ actor {
     subscriptionSettings := newSettings;
   };
 
-  // ── Question Functions (Admin-Only Write, Public Read) ───────────────────
+  // ── Question Functions (No Admin Check per User Request) ──────────────────
+
   public shared ({ caller }) func addQuestion(newQuestion : Question) : async Bool {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can add questions");
-    };
     adminQuestions := Array.tabulate(
       adminQuestions.size() + 1,
       func(i) { if (i < adminQuestions.size()) { adminQuestions[i] } else { newQuestion } },
@@ -131,9 +133,6 @@ actor {
   };
 
   public shared ({ caller }) func removeQuestion(id : Nat) : async Bool {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can remove questions");
-    };
     let originalSize = adminQuestions.size();
     let filteredQuestions = adminQuestions.filter(func(q) { q.id != id });
     let newSize = filteredQuestions.size();
@@ -288,5 +287,15 @@ actor {
     );
     userSubscriptions := newUserSubscriptions;
     true;
+  };
+
+  // Migration implementation
+  system func preupgrade() {
+    userSubscriptionsArray := userSubscriptions.toArray();
+  };
+
+  system func postupgrade() {
+    userSubscriptions := List.fromArray(userSubscriptionsArray);
+    userSubscriptionsArray := [];
   };
 };

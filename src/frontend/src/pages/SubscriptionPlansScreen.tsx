@@ -325,7 +325,7 @@ export default function SubscriptionPlansScreen({
             className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-all font-body ${
               trialUsed
                 ? "bg-muted text-muted-foreground cursor-not-allowed"
-                : "bg-success text-white hover:bg-success/90 active:scale-[0.98]"
+                : "bg-black text-white hover:bg-gray-900 active:scale-[0.98]"
             }`}
           >
             {trialUsed
@@ -445,7 +445,7 @@ export default function SubscriptionPlansScreen({
             type="button"
             data-ocid="subscription.yearly.button"
             onClick={() => handleSubscribe("yearly")}
-            className="w-full py-2.5 rounded-xl font-semibold text-sm bg-gold text-white hover:bg-gold/90 active:scale-[0.98] transition-all font-body"
+            className="w-full py-2.5 rounded-xl font-semibold text-sm bg-black text-white hover:bg-gray-900 active:scale-[0.98] transition-all font-body"
           >
             Subscribe — ₹{prices.yearly}/year
           </button>
