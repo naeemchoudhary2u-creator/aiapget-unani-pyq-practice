@@ -1,5 +1,7 @@
 import {
+  AlertTriangle,
   BookOpen,
+  Calendar,
   CheckCircle2,
   ChevronRight,
   Clock,
@@ -12,7 +14,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Screen } from "../App";
-import { TOPICS, questions as staticQuestions } from "../data/questions";
+import { questions as staticQuestions } from "../data/questions";
 import { useAllQuestions } from "../hooks/useAdminQueries";
 
 interface HomeScreenProps {
@@ -28,9 +30,48 @@ function shuffleArray<T>(arr: T[]): T[] {
   return a;
 }
 
+function getSubscriptionInfo() {
+  try {
+    const raw = localStorage.getItem("aiapget_subscription");
+    if (!raw) return null;
+    const s = JSON.parse(raw);
+    if (
+      (s.status === "approved" || !s.status) &&
+      typeof s.expiresAt === "number"
+    ) {
+      const now = Date.now();
+      const msLeft = s.expiresAt - now;
+      const gracePeriodMs = 24 * 60 * 60 * 1000;
+      const daysRemaining = Math.max(
+        0,
+        Math.ceil(msLeft / (1000 * 60 * 60 * 24)),
+      );
+      const hoursRemaining = Math.max(0, Math.ceil(msLeft / (1000 * 60 * 60)));
+      const isGrace = msLeft < 0 && msLeft > -gracePeriodMs;
+      return {
+        plan: s.plan as string,
+        expiresAt: s.expiresAt as number,
+        daysRemaining,
+        hoursRemaining: isGrace
+          ? Math.max(
+              0,
+              Math.ceil((s.expiresAt + gracePeriodMs - now) / (1000 * 60 * 60)),
+            )
+          : hoursRemaining,
+        isGrace,
+        startDate: s.startDate as string | undefined,
+      };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export default function HomeScreen({ onNavigate }: HomeScreenProps) {
   const { data: allQuestions = staticQuestions } = useAllQuestions();
   const [showPaymentBanner, setShowPaymentBanner] = useState(false);
+  const [subscriptionInfo] = useState(getSubscriptionInfo);
 
   useEffect(() => {
     if (localStorage.getItem("aiapget_payment_submitted") === "true") {
@@ -157,6 +198,72 @@ export default function HomeScreen({ onNavigate }: HomeScreenProps) {
             </div>
           ))}
         </section>
+
+        {/* Subscription Status Card */}
+        {subscriptionInfo && (
+          <section>
+            {subscriptionInfo.isGrace ? (
+              <div
+                data-ocid="home.subscription.grace_state"
+                className="flex items-start gap-3 bg-amber-500/10 border border-amber-500/40 rounded-2xl px-4 py-3"
+              >
+                <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-amber-600 font-body">
+                    Subscription Expiring!
+                  </p>
+                  <p className="text-xs text-muted-foreground font-body mt-0.5">
+                    Your subscription has expired. You have{" "}
+                    <strong className="text-amber-600">
+                      {subscriptionInfo.hoursRemaining}h
+                    </strong>{" "}
+                    grace period left before access is removed.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  data-ocid="home.subscription.renew_button"
+                  onClick={() => onNavigate({ name: "subscription" })}
+                  className="text-xs text-amber-600 font-semibold hover:text-amber-700 transition-colors whitespace-nowrap"
+                >
+                  Renew →
+                </button>
+              </div>
+            ) : (
+              <div
+                data-ocid="home.subscription.card"
+                className="flex items-center gap-3 bg-success/8 border border-success/30 rounded-2xl px-4 py-3"
+              >
+                <Calendar className="w-5 h-5 text-success flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground font-body">
+                    {subscriptionInfo.daysRemaining} Days Remaining
+                  </p>
+                  <p className="text-xs text-muted-foreground font-body">
+                    {subscriptionInfo.plan === "trial"
+                      ? "Free Trial"
+                      : subscriptionInfo.plan === "yearly"
+                        ? "Yearly Plan"
+                        : "Monthly Plan"}{" "}
+                    · Expires{" "}
+                    {new Date(subscriptionInfo.expiresAt).toLocaleDateString(
+                      "en-IN",
+                      { day: "2-digit", month: "short", year: "numeric" },
+                    )}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  data-ocid="home.subscription.manage_button"
+                  onClick={() => onNavigate({ name: "subscription" })}
+                  className="text-xs text-success font-semibold hover:text-success/80 transition-colors whitespace-nowrap"
+                >
+                  Manage →
+                </button>
+              </div>
+            )}
+          </section>
+        )}
 
         {/* Navigation Cards */}
         <section className="space-y-3">

@@ -1,8 +1,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AppHeader from "./components/AppHeader";
 import Footer from "./components/Footer";
 import type { Question } from "./data/questions";
+import {
+  useGetSubscriptionByUser,
+  useUpdateLastLoginDevice,
+} from "./hooks/useSubscriptionQueries";
 import AboutScreen from "./pages/AboutScreen";
 import AdminPanelScreen from "./pages/AdminPanelScreen";
 import ContactScreen from "./pages/ContactScreen";
@@ -87,8 +91,11 @@ function isProfileComplete() {
   }
 }
 
+const GRACE_PERIOD_MS = 24 * 60 * 60 * 1000; // 24 hours in ms
+
 function getSubscriptionStatus():
   | "active"
+  | "grace"
   | "pending"
   | "rejected"
   | "none"
@@ -99,18 +106,25 @@ function getSubscriptionStatus():
     const s = JSON.parse(raw);
     if (s.status === "pending") return "pending";
     if (s.status === "rejected") return "rejected";
-    if (s.status === "approved") {
-      const valid = typeof s.expiresAt === "number" && s.expiresAt > Date.now();
-      if (!valid) return "none";
+
+    const now = Date.now();
+
+    if (
+      s.status === "approved" ||
+      (typeof s.expiresAt === "number" && !s.status)
+    ) {
       // Device binding check — only applies once a device is bound
-      if (!isDeviceAllowed(s.boundDeviceId)) return "device_blocked";
-      return "active";
+      if (s.boundDeviceId && !isDeviceAllowed(s.boundDeviceId))
+        return "device_blocked";
+
+      // Grace period: expired within 24 hours → still allow but warn
+      if (typeof s.expiresAt === "number") {
+        if (s.expiresAt > now) return "active";
+        if (s.expiresAt > now - GRACE_PERIOD_MS) return "grace";
+      }
+      return "none";
     }
-    // Legacy records (no status field) — treat as active if expiry is valid
-    if (typeof s.expiresAt === "number" && s.expiresAt > Date.now()) {
-      if (!isDeviceAllowed(s.boundDeviceId)) return "device_blocked";
-      return "active";
-    }
+
     return "none";
   } catch {
     return "none";
@@ -134,9 +148,75 @@ function AppContent() {
   // Gate checks (re-evaluated on every render + gateKey change)
   const session = getSession();
   const profileComplete = isProfileComplete();
-  const subscriptionStatus = getSubscriptionStatus();
-  const activeSubscription = subscriptionStatus === "active";
+  const [subscriptionStatus, setSubscriptionStatus] = useState(
+    getSubscriptionStatus,
+  );
+  const activeSubscription =
+    subscriptionStatus === "active" || subscriptionStatus === "grace";
   const deviceBlocked = subscriptionStatus === "device_blocked";
+
+  // Backend subscription sync
+  const userId = session?.id ?? "";
+  const { data: backendSub } = useGetSubscriptionByUser(userId);
+  const updateLastLoginDeviceMutation = useUpdateLastLoginDevice();
+  const lastSyncedUserIdRef = useRef<string | null>(null);
+  const updateLastLoginDeviceMutateRef = useRef(
+    updateLastLoginDeviceMutation.mutate,
+  );
+  updateLastLoginDeviceMutateRef.current = updateLastLoginDeviceMutation.mutate;
+
+  useEffect(() => {
+    if (!backendSub || !userId) return;
+
+    const currentDeviceId = getDeviceId();
+
+    // If admin has reset device binding (RESET_REQUESTED sentinel), clear local lock
+    if (backendSub.deviceId === "RESET_REQUESTED") {
+      try {
+        const raw = localStorage.getItem("aiapget_subscription");
+        if (raw) {
+          const s = JSON.parse(raw);
+          s.boundDeviceId = undefined;
+          localStorage.setItem("aiapget_subscription", JSON.stringify(s));
+        }
+      } catch {}
+      setSubscriptionStatus(getSubscriptionStatus());
+      return;
+    }
+
+    // Sync backend subscription into localStorage if backend is source of truth
+    if (backendSub.status === "active") {
+      const expiryDate = new Date(backendSub.expiryDate);
+      const expiresAt = expiryDate.getTime();
+
+      const syncedSub = {
+        plan: backendSub.planType,
+        status: "approved",
+        expiresAt,
+        boundDeviceId: backendSub.deviceId || currentDeviceId,
+        startDate: backendSub.startDate,
+        paymentRef: backendSub.paymentRef,
+        userName: backendSub.userName,
+      };
+
+      // If device doesn't match stored deviceId, block
+      if (backendSub.deviceId && backendSub.deviceId !== currentDeviceId) {
+        syncedSub.boundDeviceId = backendSub.deviceId;
+      }
+
+      localStorage.setItem("aiapget_subscription", JSON.stringify(syncedSub));
+      setSubscriptionStatus(getSubscriptionStatus());
+    }
+
+    // Update last login device (fire and forget)
+    if (lastSyncedUserIdRef.current !== userId) {
+      lastSyncedUserIdRef.current = userId;
+      updateLastLoginDeviceMutateRef.current({
+        userId,
+        deviceId: currentDeviceId,
+      });
+    }
+  }, [backendSub, userId]);
 
   // Determine what to show based on gate state
   // Allow admin screen without subscription check
@@ -180,7 +260,10 @@ function AppContent() {
           subscriptionStatus={subscriptionStatus}
           onNavigate={(s) => {
             setScreen(s);
-            if (s.name === "home") refreshGate();
+            if (s.name === "home") {
+              setSubscriptionStatus(getSubscriptionStatus());
+              refreshGate();
+            }
           }}
         />
       );
@@ -265,7 +348,10 @@ function AppContent() {
             subscriptionStatus={subscriptionStatus}
             onNavigate={(s) => {
               navigateTo(s);
-              if (s.name === "home") refreshGate();
+              if (s.name === "home") {
+                setSubscriptionStatus(getSubscriptionStatus());
+                refreshGate();
+              }
             }}
           />
         )}

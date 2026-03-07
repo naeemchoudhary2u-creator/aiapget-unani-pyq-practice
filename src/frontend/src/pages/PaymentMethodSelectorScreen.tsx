@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import type { Screen } from "../App";
+import { PaymentStatus } from "../backend";
+import { useSubmitPaymentRecord } from "../hooks/useAdminQueries";
 import { getDeviceId } from "../utils/deviceId";
 
 interface PaymentMethodSelectorScreenProps {
@@ -129,11 +131,12 @@ export default function PaymentMethodSelectorScreen({
   planCycle,
   onNavigate,
 }: PaymentMethodSelectorScreenProps) {
-  const [razorpayOpened, setRazorpayOpened] = useState(false);
+  const [_razorpayOpened, setRazorpayOpened] = useState(false);
   const [pendingVerification, setPendingVerification] = useState(false);
   const [utrId, setUtrId] = useState("");
   const [utrError, setUtrError] = useState("");
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
+  const submitPaymentMutation = useSubmitPaymentRecord();
 
   const razorpayLink = getRazorpayLink(planPrice);
 
@@ -156,11 +159,52 @@ export default function PaymentMethodSelectorScreen({
       setUtrError("UTR / Transaction ID must be at least 8 characters.");
       return;
     }
-    submitPaymentForVerification(planCycle, {
+    const paymentId = submitPaymentForVerification(planCycle, {
       utrId: trimmed,
       paymentMethod: selectedMethod ?? "unknown",
       amount: planPrice,
     });
+
+    // Helper to safely read localStorage user session
+    const getUserId = () => {
+      try {
+        return (
+          JSON.parse(localStorage.getItem("aiapget_user_session") ?? "{}").id ??
+          "unknown"
+        );
+      } catch {
+        return "unknown";
+      }
+    };
+    const getUserName = () => {
+      try {
+        return (
+          JSON.parse(localStorage.getItem("aiapget_user_session") ?? "{}")
+            .name ?? "Unknown"
+        );
+      } catch {
+        return "Unknown";
+      }
+    };
+
+    // Also submit payment record to backend for persistent storage
+    const paymentRecord = {
+      id: paymentId,
+      date: new Date().toISOString(),
+      plan: planCycle,
+      amount: planPrice,
+      utrId: trimmed,
+      paymentMethod: selectedMethod ?? "unknown",
+      status: PaymentStatus.pending,
+      deviceId: getDeviceId() || undefined,
+      userId: getUserId(),
+      userName: getUserName(),
+      approvedAt: undefined,
+      rejectedAt: undefined,
+    };
+    // Fire and forget — localStorage is the primary fallback, backend is source of truth for admin
+    submitPaymentMutation.mutateAsync(paymentRecord).catch(() => {});
+
     // Mark that we should show a success banner on home
     localStorage.setItem("aiapget_payment_submitted", "true");
     setPendingVerification(true);
@@ -318,80 +362,78 @@ export default function PaymentMethodSelectorScreen({
           </p>
         </div>
 
-        {/* Step 2: Enter UTR and confirm — only shown after Razorpay is opened */}
-        {razorpayOpened && (
-          <div
-            className="bg-success/5 border border-success/30 rounded-2xl p-5 space-y-4"
-            data-ocid="payment.confirm.section"
-          >
-            <div className="flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-success text-white text-xs font-bold flex items-center justify-center">
-                2
-              </span>
-              <div>
-                <p className="text-sm font-semibold text-foreground font-body">
-                  Confirm Your Payment
-                </p>
-                <p className="text-xs text-muted-foreground font-body">
-                  Enter the UTR / Transaction ID from your payment receipt to
-                  activate your subscription.
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label
-                htmlFor="utr-id"
-                className="block text-xs font-medium text-foreground"
-              >
-                UTR / Transaction ID <span className="text-destructive">*</span>
-              </label>
-              <input
-                id="utr-id"
-                type="text"
-                data-ocid="payment.utr.input"
-                value={utrId}
-                onChange={(e) => {
-                  setUtrId(e.target.value);
-                  if (utrError) setUtrError("");
-                }}
-                className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-success/50 placeholder:text-muted-foreground font-body"
-                placeholder="e.g. 4234567890 or T2312345..."
-              />
-              <p className="text-[11px] text-muted-foreground font-body">
-                You can find this in your UPI app's transaction history or
-                Razorpay payment receipt.
+        {/* Step 2: Enter UTR and confirm — always visible so users can submit after returning from Razorpay */}
+        <div
+          className="bg-success/5 border border-success/30 rounded-2xl p-5 space-y-4"
+          data-ocid="payment.confirm.section"
+        >
+          <div className="flex items-center gap-2">
+            <span className="w-6 h-6 rounded-full bg-success text-white text-xs font-bold flex items-center justify-center">
+              2
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-foreground font-body">
+                Confirm Your Payment
               </p>
-              {utrError && (
-                <div
-                  className="flex items-center gap-2 text-xs text-destructive font-body"
-                  data-ocid="payment.error_state"
-                >
-                  <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-                  {utrError}
-                </div>
-              )}
+              <p className="text-xs text-muted-foreground font-body">
+                Enter the UTR / Transaction ID from your payment receipt to
+                activate your subscription.
+              </p>
             </div>
-
-            <Button
-              data-ocid="payment.confirm_button"
-              onClick={handleConfirmPayment}
-              className="w-full font-body bg-success hover:bg-success/90 text-white border-0"
-            >
-              <CheckCircle2 className="w-4 h-4 mr-2" />
-              Confirm Payment & Activate {planName}
-            </Button>
-
-            <button
-              type="button"
-              data-ocid="payment.secondary_button"
-              onClick={() => handlePay()}
-              className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors font-body py-1"
-            >
-              Didn't finish? Reopen Razorpay →
-            </button>
           </div>
-        )}
+
+          <div className="space-y-2">
+            <label
+              htmlFor="utr-id"
+              className="block text-xs font-medium text-foreground"
+            >
+              UTR / Transaction ID <span className="text-destructive">*</span>
+            </label>
+            <input
+              id="utr-id"
+              type="text"
+              data-ocid="payment.utr.input"
+              value={utrId}
+              onChange={(e) => {
+                setUtrId(e.target.value);
+                if (utrError) setUtrError("");
+              }}
+              className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-success/50 placeholder:text-muted-foreground font-body"
+              placeholder="e.g. 4234567890 or T2312345..."
+            />
+            <p className="text-[11px] text-muted-foreground font-body">
+              You can find this in your UPI app's transaction history or
+              Razorpay payment receipt.
+            </p>
+            {utrError && (
+              <div
+                className="flex items-center gap-2 text-xs text-destructive font-body"
+                data-ocid="payment.error_state"
+              >
+                <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                {utrError}
+              </div>
+            )}
+          </div>
+
+          <Button
+            data-ocid="payment.confirm_button"
+            onClick={handleConfirmPayment}
+            className="w-full font-body bg-success hover:bg-success/90 text-white border-0"
+          >
+            <CheckCircle2 className="w-4 h-4 mr-2" />
+            Confirm Payment & Activate {planName}
+          </Button>
+
+          <button
+            type="button"
+            data-ocid="payment.secondary_button"
+            onClick={() => handlePay()}
+            className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors font-body py-1"
+          >
+            Didn't finish? Reopen Razorpay →
+          </button>
+        </div>
       </main>
     </div>
   );

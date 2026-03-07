@@ -7,17 +7,27 @@ import {
   Loader2,
   Plus,
   Settings,
+  Smartphone,
   Trash2,
+  Users,
   X,
 } from "lucide-react";
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Question } from "../backend";
 import {
   useAddQuestion,
+  useApprovePayment,
   useGetAdminQuestions,
+  usePaymentRecords,
+  useRejectPayment,
   useRemoveQuestion,
+  useResetDeviceBinding,
 } from "../hooks/useAdminQueries";
+import {
+  useActivateSubscription,
+  useAllSubscriptions,
+} from "../hooks/useSubscriptionQueries";
 
 const ADMIN_PASSWORD = "Naeem9472";
 
@@ -51,6 +61,8 @@ interface PaymentRecord {
   userName: string;
   deviceId?: string;
   status?: "pending" | "approved" | "rejected";
+  approvedAt?: string;
+  rejectedAt?: string;
 }
 
 interface QuestionForm {
@@ -69,18 +81,19 @@ const TOPICS = [
   "Kulliyat",
   "Ilmul Advia",
   "Moalijat",
-  "Ilmul Jarahat",
-  "Ain, Uzn, Anf, Halaq wa Asnan",
-  "Amraz Jild wa Tazeeniyat",
-  "Amraz Niswan wa Ilmul Qabala",
-  "Kulliyat Ilaj",
-  "Other",
+  "Tashreeh wa Wazaif",
+  "Ilmul Amraz",
+  "Jarahat",
+  "Ilmul Qabalat",
+  "Hifzane Sehat",
+  "Tahaffuzi wa Samaji Tib",
 ];
 
 // Dynamically generate years from 2016 to current year, descending
 const currentYear = new Date().getFullYear();
-const YEARS: string[] = Array.from({ length: currentYear - 2016 + 1 }, (_, i) =>
-  String(currentYear - i),
+const YEARS: string[] = Array.from(
+  { length: Math.max(currentYear, 2026) - 2016 + 1 },
+  (_, i) => String(Math.max(currentYear, 2026) - i),
 );
 
 const DEFAULT_FORM: QuestionForm = {
@@ -95,6 +108,14 @@ const DEFAULT_FORM: QuestionForm = {
   explanation: "",
 };
 
+function loadLocalPaymentRecords(): PaymentRecord[] {
+  try {
+    return JSON.parse(localStorage.getItem("aiapget_payment_records") ?? "[]");
+  } catch {
+    return [];
+  }
+}
+
 export default function AdminPanelScreen({ onBack }: AdminPanelScreenProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
@@ -102,38 +123,70 @@ export default function AdminPanelScreen({ onBack }: AdminPanelScreenProps) {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [activeTab, setActiveTab] = useState<
-    "add" | "list" | "pricing" | "payments"
+    "add" | "list" | "pricing" | "payments" | "subscriptions"
   >("add");
 
-  const loadPaymentRecords = (): PaymentRecord[] => {
-    try {
-      return JSON.parse(
-        localStorage.getItem("aiapget_payment_records") ?? "[]",
-      );
-    } catch {
-      return [];
-    }
-  };
+  // Backend payment records — source of truth for admin
+  const {
+    data: backendPaymentRecords,
+    isLoading: backendPaymentsLoading,
+    refetch: refetchBackendPayments,
+  } = usePaymentRecords();
 
-  // Payment records state — mutable so approve/reject updates re-render
-  const [paymentRecords, setPaymentRecords] =
-    useState<PaymentRecord[]>(loadPaymentRecords);
+  const approvePaymentMutation = useApprovePayment();
+  const rejectPaymentMutation = useRejectPayment();
+  const resetDeviceBindingMutation = useResetDeviceBinding();
+  const activateSubscriptionMutation = useActivateSubscription();
+  const {
+    data: allSubscriptions = [],
+    isLoading: subscriptionsLoading,
+    refetch: refetchSubscriptions,
+  } = useAllSubscriptions();
 
-  // Reload payment records every time the payments tab is opened
+  // localStorage records as local fallback state
+  const [localPaymentRecords, setLocalPaymentRecords] = useState<
+    PaymentRecord[]
+  >(loadLocalPaymentRecords);
+
+  // Reload local records when switching to payments tab, and subscriptions tab
   useEffect(() => {
     if (activeTab === "payments") {
-      try {
-        const records: PaymentRecord[] = JSON.parse(
-          localStorage.getItem("aiapget_payment_records") ?? "[]",
-        );
-        setPaymentRecords(records);
-      } catch {
-        setPaymentRecords([]);
-      }
+      setLocalPaymentRecords(loadLocalPaymentRecords());
+      refetchBackendPayments();
+    } else if (activeTab === "subscriptions") {
+      refetchSubscriptions();
     }
-  }, [activeTab]);
+  }, [activeTab, refetchBackendPayments, refetchSubscriptions]);
+
+  // Merge backend records with localStorage records — backend takes precedence
+  const paymentRecords = useMemo<PaymentRecord[]>(() => {
+    const backendList: PaymentRecord[] = (backendPaymentRecords ?? []).map(
+      (r) => ({
+        id: r.id,
+        date: r.date,
+        plan: r.plan,
+        amount: r.amount,
+        utrId: r.utrId,
+        paymentMethod: r.paymentMethod,
+        userId: r.userId,
+        userName: r.userName,
+        deviceId: r.deviceId,
+        status: r.status as "pending" | "approved" | "rejected",
+        approvedAt: r.approvedAt,
+        rejectedAt: r.rejectedAt,
+      }),
+    );
+
+    const backendIds = new Set(backendList.map((r) => r.id));
+    // Include localStorage records not already in backend
+    const localOnly = localPaymentRecords.filter((r) => !backendIds.has(r.id));
+
+    return [...backendList, ...localOnly];
+  }, [backendPaymentRecords, localPaymentRecords]);
 
   const handleApprovePayment = (record: PaymentRecord) => {
+    const approvedAt = new Date().toISOString();
+
     // Activate subscription for this user and bind to their device
     const days = record.plan === "yearly" ? 365 : 30;
     const expiresAt = Date.now() + days * 24 * 60 * 60 * 1000;
@@ -146,7 +199,7 @@ export default function AdminPanelScreen({ onBack }: AdminPanelScreenProps) {
       boundDeviceId, // Lock to the device that submitted payment
     };
 
-    // Update the subscription key for the current device
+    // Update the subscription key for the current device (localStorage gate still reads this)
     const subKey =
       record.userId && record.userId !== "unknown"
         ? `aiapget_subscription_${record.userId}`
@@ -172,12 +225,38 @@ export default function AdminPanelScreen({ onBack }: AdminPanelScreenProps) {
       );
     }
 
-    // Update payment record status
-    const updated = loadPaymentRecords().map((r) =>
-      r.id === record.id ? { ...r, status: "approved" as const } : r,
+    // Update localStorage payment record status
+    const updatedLocal = loadLocalPaymentRecords().map((r) =>
+      r.id === record.id
+        ? { ...r, status: "approved" as const, approvedAt }
+        : r,
     );
-    localStorage.setItem("aiapget_payment_records", JSON.stringify(updated));
-    setPaymentRecords(updated);
+    localStorage.setItem(
+      "aiapget_payment_records",
+      JSON.stringify(updatedLocal),
+    );
+    setLocalPaymentRecords(updatedLocal);
+
+    // Call backend to persist approval
+    approvePaymentMutation.mutate({ paymentId: record.id, approvedAt });
+
+    // Activate subscription in backend — fire and forget
+    if (record.userId && record.userId !== "unknown") {
+      const startDate = new Date().toISOString();
+      const expiryDateObj = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+      const expiryDateStr = expiryDateObj.toISOString();
+      activateSubscriptionMutation.mutate({
+        userId: record.userId,
+        planType: record.plan === "yearly" ? "yearly" : "monthly",
+        status: "active",
+        deviceId: record.deviceId ?? "",
+        startDate,
+        expiryDate: expiryDateStr,
+        paymentRef: record.utrId,
+        lastLoginDevice: record.deviceId ?? "",
+        userName: record.userName,
+      });
+    }
   };
 
   const handleResetDeviceBinding = (record: PaymentRecord) => {
@@ -202,20 +281,37 @@ export default function AdminPanelScreen({ onBack }: AdminPanelScreenProps) {
       }
     } catch {}
 
-    // Update payment record to remove device binding info
-    const updated = loadPaymentRecords().map((r) =>
+    // Update localStorage payment record to remove device binding info
+    const updatedLocal = loadLocalPaymentRecords().map((r) =>
       r.id === record.id ? { ...r, deviceId: undefined } : r,
     );
-    localStorage.setItem("aiapget_payment_records", JSON.stringify(updated));
-    setPaymentRecords(updated);
+    localStorage.setItem(
+      "aiapget_payment_records",
+      JSON.stringify(updatedLocal),
+    );
+    setLocalPaymentRecords(updatedLocal);
+
+    // Also call backend
+    resetDeviceBindingMutation.mutate(record.id);
   };
 
   const handleRejectPayment = (record: PaymentRecord) => {
-    const updated = loadPaymentRecords().map((r) =>
-      r.id === record.id ? { ...r, status: "rejected" as const } : r,
+    const rejectedAt = new Date().toISOString();
+
+    // Update localStorage
+    const updatedLocal = loadLocalPaymentRecords().map((r) =>
+      r.id === record.id
+        ? { ...r, status: "rejected" as const, rejectedAt }
+        : r,
     );
-    localStorage.setItem("aiapget_payment_records", JSON.stringify(updated));
-    setPaymentRecords(updated);
+    localStorage.setItem(
+      "aiapget_payment_records",
+      JSON.stringify(updatedLocal),
+    );
+    setLocalPaymentRecords(updatedLocal);
+
+    // Also call backend
+    rejectPaymentMutation.mutate({ paymentId: record.id, rejectedAt });
   };
 
   // Pricing state
@@ -502,7 +598,26 @@ export default function AdminPanelScreen({ onBack }: AdminPanelScreenProps) {
             }`}
           >
             <CreditCard className="w-4 h-4 inline mr-1.5" />
-            Payments ({paymentRecords.length})
+            Payments ({backendPaymentsLoading ? "…" : paymentRecords.length})
+          </button>
+          <button
+            type="button"
+            data-ocid="admin.subscriptions.tab"
+            onClick={() => {
+              setActiveTab("subscriptions");
+              setSuccessMessage("");
+              setErrorMessage("");
+              resetMutationRef.current();
+            }}
+            className={`px-5 py-2.5 rounded-xl font-medium text-sm transition-colors ${
+              activeTab === "subscriptions"
+                ? "bg-primary text-primary-foreground"
+                : "bg-card text-muted-foreground hover:text-foreground border border-border"
+            }`}
+          >
+            <Users className="w-4 h-4 inline mr-1.5" />
+            Subscriptions (
+            {subscriptionsLoading ? "…" : allSubscriptions.length})
           </button>
         </div>
 
@@ -806,9 +921,25 @@ export default function AdminPanelScreen({ onBack }: AdminPanelScreenProps) {
                   Reject each payment.
                 </p>
               </div>
+              {backendPaymentsLoading && (
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Syncing…
+                </div>
+              )}
             </div>
 
-            {paymentRecords.length === 0 ? (
+            {backendPaymentsLoading && paymentRecords.length === 0 ? (
+              <div
+                data-ocid="admin.payments.loading_state"
+                className="bg-card rounded-2xl border border-border p-12 text-center"
+              >
+                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground text-sm">
+                  Loading payment records…
+                </p>
+              </div>
+            ) : !backendPaymentsLoading && paymentRecords.length === 0 ? (
               <div
                 data-ocid="admin.payments.empty_state"
                 className="bg-card rounded-2xl border border-border p-12 text-center"
@@ -920,14 +1051,14 @@ export default function AdminPanelScreen({ onBack }: AdminPanelScreenProps) {
                     {/* Approve / Reject — only for pending */}
                     {status === "pending" && (
                       <div
-                        className="flex gap-2 pt-1"
+                        className="flex flex-col gap-2 pt-2"
                         data-ocid={`admin.payment.actions.${idx + 1}`}
                       >
                         <button
                           type="button"
                           data-ocid={`admin.payment.approve_button.${idx + 1}`}
                           onClick={() => handleApprovePayment(record)}
-                          className="flex-1 py-2 rounded-xl bg-success text-white text-sm font-semibold hover:bg-success/90 transition-colors flex items-center justify-center gap-1.5"
+                          className="w-full py-3 rounded-xl bg-green-600 text-white text-sm font-bold hover:bg-green-700 active:bg-green-800 transition-colors flex items-center justify-center gap-2 shadow-sm"
                         >
                           <CheckCircle className="w-4 h-4" />
                           Approve
@@ -936,7 +1067,7 @@ export default function AdminPanelScreen({ onBack }: AdminPanelScreenProps) {
                           type="button"
                           data-ocid={`admin.payment.reject_button.${idx + 1}`}
                           onClick={() => handleRejectPayment(record)}
-                          className="flex-1 py-2 rounded-xl bg-destructive text-destructive-foreground text-sm font-semibold hover:bg-destructive/90 transition-colors flex items-center justify-center gap-1.5"
+                          className="w-full py-3 rounded-xl bg-red-600 text-white text-sm font-bold hover:bg-red-700 active:bg-red-800 transition-colors flex items-center justify-center gap-2 shadow-sm"
                         >
                           <X className="w-4 h-4" />
                           Reject
@@ -967,6 +1098,222 @@ export default function AdminPanelScreen({ onBack }: AdminPanelScreenProps) {
                         <X className="w-3.5 h-3.5" />
                         Payment rejected — user will see a retry notice
                       </p>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        )}
+
+        {/* Subscriptions List */}
+        {activeTab === "subscriptions" && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="font-heading text-lg font-semibold text-foreground">
+                  User Subscriptions
+                </h2>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  All active and past subscriptions stored in the backend.
+                </p>
+              </div>
+              {subscriptionsLoading && (
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Syncing…
+                </div>
+              )}
+            </div>
+
+            {subscriptionsLoading && allSubscriptions.length === 0 ? (
+              <div
+                data-ocid="admin.subscriptions.loading_state"
+                className="bg-card rounded-2xl border border-border p-12 text-center"
+              >
+                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground text-sm">
+                  Loading subscriptions…
+                </p>
+              </div>
+            ) : !subscriptionsLoading && allSubscriptions.length === 0 ? (
+              <div
+                data-ocid="admin.subscriptions.empty_state"
+                className="bg-card rounded-2xl border border-border p-12 text-center"
+              >
+                <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground text-sm">
+                  No subscriptions yet. They will appear here once users
+                  subscribe and are approved.
+                </p>
+              </div>
+            ) : (
+              allSubscriptions.map((sub, idx) => {
+                const isActive = sub.status === "active";
+                const isExpired = sub.status === "expired";
+                const expiryDate = sub.expiryDate
+                  ? new Date(sub.expiryDate)
+                  : null;
+                const startDate = sub.startDate
+                  ? new Date(sub.startDate)
+                  : null;
+                const daysRemaining = expiryDate
+                  ? Math.max(
+                      0,
+                      Math.ceil(
+                        (expiryDate.getTime() - Date.now()) /
+                          (1000 * 60 * 60 * 24),
+                      ),
+                    )
+                  : 0;
+
+                return (
+                  <div
+                    key={`${sub.userId}-${idx}`}
+                    data-ocid={`admin.subscription.item.${idx + 1}`}
+                    className={`bg-card rounded-2xl border p-5 space-y-3 ${
+                      isActive
+                        ? "border-success/40"
+                        : isExpired
+                          ? "border-muted"
+                          : "border-border"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-1 rounded-lg">
+                          #{idx + 1}
+                        </span>
+                        <span
+                          className={`text-xs px-2 py-1 rounded-lg font-medium ${
+                            sub.planType === "yearly"
+                              ? "bg-gold/10 text-gold"
+                              : sub.planType === "free_trial"
+                                ? "bg-success/10 text-success"
+                                : "bg-primary/10 text-primary"
+                          }`}
+                        >
+                          {sub.planType === "yearly"
+                            ? "Yearly"
+                            : sub.planType === "free_trial"
+                              ? "Free Trial"
+                              : "Monthly"}
+                        </span>
+                        <span
+                          className={`text-xs px-2 py-1 rounded-lg font-semibold ${
+                            isActive
+                              ? "bg-success/15 text-success"
+                              : isExpired
+                                ? "bg-muted text-muted-foreground"
+                                : "bg-amber-500/15 text-amber-600"
+                          }`}
+                        >
+                          {sub.status.charAt(0).toUpperCase() +
+                            sub.status.slice(1)}
+                        </span>
+                      </div>
+                      {isActive && (
+                        <span className="text-xs font-semibold text-success">
+                          {daysRemaining} days left
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div>
+                        <p className="text-muted-foreground mb-0.5">
+                          User Name
+                        </p>
+                        <p className="font-medium text-foreground">
+                          {sub.userName || "—"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground mb-0.5">User ID</p>
+                        <p
+                          className="font-mono text-[11px] text-foreground truncate"
+                          title={sub.userId}
+                        >
+                          {sub.userId.slice(0, 16)}…
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground mb-0.5">
+                          Start Date
+                        </p>
+                        <p className="font-medium text-foreground">
+                          {startDate
+                            ? startDate.toLocaleDateString("en-IN", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                              })
+                            : "—"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground mb-0.5">
+                          Expiry Date
+                        </p>
+                        <p className="font-medium text-foreground">
+                          {expiryDate
+                            ? expiryDate.toLocaleDateString("en-IN", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                              })
+                            : "—"}
+                        </p>
+                      </div>
+                      {sub.paymentRef && (
+                        <div className="col-span-2">
+                          <p className="text-muted-foreground mb-0.5">
+                            Payment Ref (UTR)
+                          </p>
+                          <p className="font-mono font-bold text-success text-sm select-all">
+                            {sub.paymentRef}
+                          </p>
+                        </div>
+                      )}
+                      {sub.deviceId && (
+                        <div className="col-span-2">
+                          <p className="text-muted-foreground mb-0.5 flex items-center gap-1">
+                            <Smartphone className="w-3 h-3" />
+                            Bound Device ID
+                          </p>
+                          <p className="font-mono text-[11px] text-foreground bg-muted rounded-lg px-2 py-1.5 select-all break-all">
+                            {sub.deviceId}
+                          </p>
+                        </div>
+                      )}
+                      {sub.lastLoginDevice &&
+                        sub.lastLoginDevice !== sub.deviceId && (
+                          <div className="col-span-2">
+                            <p className="text-muted-foreground mb-0.5 flex items-center gap-1">
+                              <Smartphone className="w-3 h-3 text-amber-500" />
+                              Last Login Device
+                            </p>
+                            <p className="font-mono text-[11px] text-amber-600 bg-amber-500/10 rounded-lg px-2 py-1.5 select-all break-all">
+                              {sub.lastLoginDevice}
+                            </p>
+                          </div>
+                        )}
+                    </div>
+
+                    {isActive && sub.deviceId && (
+                      <button
+                        type="button"
+                        data-ocid={`admin.subscription.reset_device_button.${idx + 1}`}
+                        onClick={() => {
+                          activateSubscriptionMutation.mutate({
+                            ...sub,
+                            deviceId: "RESET_REQUESTED",
+                          });
+                        }}
+                        className="text-xs text-amber-600 hover:text-amber-700 underline underline-offset-2 font-medium transition-colors"
+                      >
+                        Reset Device Binding (allow new device)
+                      </button>
                     )}
                   </div>
                 );

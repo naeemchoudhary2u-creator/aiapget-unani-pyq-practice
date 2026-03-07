@@ -1,5 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Question as BackendQuestion } from "../backend";
+import type {
+  PaymentRecord as BackendPaymentRecord,
+  Question as BackendQuestion,
+} from "../backend";
 import { type Question, questions as staticQuestions } from "../data/questions";
 import { useActor } from "./useActor";
 
@@ -103,6 +106,92 @@ function convertBackendQuestion(bq: BackendQuestion, index: number): Question {
     year: Number.isNaN(yearNum) ? 0 : yearNum,
     explanation: bq.explanation ?? "",
   };
+}
+
+// Hook to fetch all payment records from backend
+export function usePaymentRecords() {
+  const { actor } = useActor();
+  return useQuery<BackendPaymentRecord[]>({
+    queryKey: ["paymentRecords"],
+    queryFn: async () => {
+      if (!actor) return [];
+      try {
+        return await actor.getPaymentRecords();
+      } catch {
+        return [];
+      }
+    },
+    enabled: !!actor,
+    staleTime: 0,
+    refetchOnMount: true,
+    retry: false,
+  });
+}
+
+// Hook to submit a payment record to backend
+export function useSubmitPaymentRecord() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (record: BackendPaymentRecord) => {
+      if (!actor) throw new Error("Actor not available");
+      return await actor.submitPaymentRecord(record);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["paymentRecords"] });
+    },
+  });
+}
+
+// Hook to approve a payment
+export function useApprovePayment() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      paymentId,
+      approvedAt,
+    }: { paymentId: string; approvedAt: string }) => {
+      if (!actor) throw new Error("Actor not available");
+      return await actor.approvePayment(paymentId, approvedAt);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["paymentRecords"] });
+    },
+  });
+}
+
+// Hook to reject a payment
+export function useRejectPayment() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      paymentId,
+      rejectedAt,
+    }: { paymentId: string; rejectedAt: string }) => {
+      if (!actor) throw new Error("Actor not available");
+      return await actor.rejectPayment(paymentId, rejectedAt);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["paymentRecords"] });
+    },
+  });
+}
+
+// Hook to reset device binding
+export function useResetDeviceBinding() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (paymentId: string) => {
+      if (!actor) throw new Error("Actor not available");
+      return await actor.resetDeviceBinding(paymentId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["paymentRecords"] });
+    },
+  });
 }
 
 /**

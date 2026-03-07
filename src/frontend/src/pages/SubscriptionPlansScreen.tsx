@@ -1,6 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import {
   AlertCircle,
+  AlertTriangle,
+  CalendarDays,
   Check,
   Clock,
   Crown,
@@ -13,10 +15,52 @@ import { useState } from "react";
 import type { Screen } from "../App";
 import { getDeviceId } from "../utils/deviceId";
 
+function getLocalSubscriptionExpiry(): {
+  daysRemaining: number;
+  hoursRemainingGrace: number;
+  expiresAt: number;
+  plan: string;
+} | null {
+  try {
+    const raw = localStorage.getItem("aiapget_subscription");
+    if (!raw) return null;
+    const s = JSON.parse(raw);
+    if (
+      (s.status === "approved" || !s.status) &&
+      typeof s.expiresAt === "number"
+    ) {
+      const now = Date.now();
+      const gracePeriodMs = 24 * 60 * 60 * 1000;
+      const msLeft = s.expiresAt - now;
+      const daysRemaining = Math.max(
+        0,
+        Math.ceil(msLeft / (1000 * 60 * 60 * 24)),
+      );
+      const hoursRemainingGrace =
+        msLeft < 0
+          ? Math.max(
+              0,
+              Math.ceil((s.expiresAt + gracePeriodMs - now) / (1000 * 60 * 60)),
+            )
+          : 0;
+      return {
+        daysRemaining,
+        hoursRemainingGrace,
+        expiresAt: s.expiresAt,
+        plan: s.plan ?? "monthly",
+      };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 interface SubscriptionPlansScreenProps {
   onNavigate: (screen: Screen) => void;
   subscriptionStatus?:
     | "active"
+    | "grace"
     | "pending"
     | "rejected"
     | "none"
@@ -48,6 +92,7 @@ export default function SubscriptionPlansScreen({
 }: SubscriptionPlansScreenProps) {
   const prices = getSubscriptionPrices();
   const trialUsed = hasUsedTrial();
+  const expiryInfo = getLocalSubscriptionExpiry();
 
   // Get user name from session for personalisation
   const [userName] = useState(() => {
@@ -137,6 +182,58 @@ export default function SubscriptionPlansScreen({
             </div>
           </div>
         )}
+
+        {/* Grace period notice */}
+        {subscriptionStatus === "grace" && expiryInfo && (
+          <div
+            data-ocid="subscription.grace_state"
+            className="bg-amber-500/10 border border-amber-500/40 rounded-2xl p-4 flex items-start gap-3"
+          >
+            <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-semibold text-amber-600 font-body">
+                Subscription Expired — Grace Period
+              </p>
+              <p className="text-xs text-muted-foreground font-body mt-0.5">
+                Your subscription has expired. You have{" "}
+                <strong className="text-amber-600">
+                  {expiryInfo.hoursRemainingGrace} hours
+                </strong>{" "}
+                of grace period left before access is removed. Renew now to keep
+                uninterrupted access.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Active subscription info */}
+        {(subscriptionStatus === "active" || subscriptionStatus === "grace") &&
+          expiryInfo &&
+          subscriptionStatus !== "grace" && (
+            <div
+              data-ocid="subscription.active_state"
+              className="bg-success/8 border border-success/30 rounded-2xl p-4 flex items-start gap-3"
+            >
+              <CalendarDays className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-success font-body">
+                  Subscription Active
+                </p>
+                <p className="text-xs text-muted-foreground font-body mt-0.5">
+                  <strong className="text-foreground">
+                    {expiryInfo.daysRemaining} days remaining
+                  </strong>
+                  {" · "}
+                  Expires{" "}
+                  {new Date(expiryInfo.expiresAt).toLocaleDateString("en-IN", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </p>
+              </div>
+            </div>
+          )}
 
         {/* Header */}
         <div className="text-center space-y-1.5">

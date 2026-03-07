@@ -205,7 +205,7 @@ export default function QuizScreen({
               optionClass +=
                 " bg-card border-border text-foreground hover:border-gold hover:bg-gold/5 cursor-pointer";
             } else if (isCorrect) {
-              optionClass += " bg-success/15 border-success cursor-default";
+              optionClass += " bg-success border-success cursor-default";
             } else if (isSelected) {
               optionClass +=
                 " bg-destructive/10 border-destructive cursor-default";
@@ -236,7 +236,7 @@ export default function QuizScreen({
                 <span
                   className={`flex-1 ${
                     isAnswered && isCorrect
-                      ? "text-success font-bold"
+                      ? "text-white font-bold"
                       : isAnswered && isSelected && !isCorrect
                         ? "text-destructive font-medium"
                         : "text-foreground"
@@ -245,7 +245,7 @@ export default function QuizScreen({
                   {option}
                 </span>
                 {isAnswered && isCorrect && (
-                  <CheckCircle className="w-4 h-4 text-success flex-shrink-0" />
+                  <CheckCircle className="w-4 h-4 text-white flex-shrink-0" />
                 )}
               </button>
             );

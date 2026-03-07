@@ -87,7 +87,7 @@ export default function ReviewScreen({
             let cls =
               "w-full text-left border rounded-xl p-4 flex items-center gap-3 font-body text-sm";
             if (isCorrectChoice) {
-              cls += " bg-success/15 border-success";
+              cls += " bg-success border-success";
             } else if (isUserChoice && !isCorrectChoice) {
               cls += " bg-destructive/10 border-destructive";
             } else {
@@ -99,7 +99,7 @@ export default function ReviewScreen({
                 <span
                   className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold font-heading border ${
                     isCorrectChoice
-                      ? "bg-success border-success text-white"
+                      ? "bg-white/30 border-white/50 text-white"
                       : isUserChoice
                         ? "bg-destructive border-destructive text-white"
                         : "border-border bg-muted text-foreground"
@@ -110,7 +110,7 @@ export default function ReviewScreen({
                 <span
                   className={`flex-1 font-medium ${
                     isCorrectChoice
-                      ? "text-success font-bold"
+                      ? "text-white font-bold"
                       : isUserChoice && !isCorrectChoice
                         ? "text-destructive font-semibold"
                         : "text-foreground"
@@ -119,7 +119,7 @@ export default function ReviewScreen({
                   {option}
                 </span>
                 {isCorrectChoice && (
-                  <CheckCircle className="w-4 h-4 text-success flex-shrink-0" />
+                  <CheckCircle className="w-4 h-4 text-white flex-shrink-0" />
                 )}
                 {isUserChoice && !isCorrectChoice && (
                   <XCircle className="w-4 h-4 text-destructive flex-shrink-0" />
