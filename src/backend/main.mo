@@ -6,13 +6,13 @@ import Text "mo:core/Text";
 import Iterate "mo:core/Iter";
 import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
-import Migration "migration";
+
 
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
 // Data migration on upgrades
-(with migration = Migration.run)
+
 actor {
   type Question = {
     id : Nat;

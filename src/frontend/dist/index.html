@@ -1,0 +1,39 @@
+<html lang='en'>
+    <head>
+        <meta charset='UTF-8' />
+        <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+        <title>AIAPGET Unani PYQ Practice</title>
+
+        <!-- PWA Manifest -->
+        <link rel='manifest' href='/manifest.json' />
+
+        <!-- Theme color for Android Chrome toolbar -->
+        <meta name='theme-color' content='#1a5c5c' />
+
+        <!-- iOS PWA meta tags -->
+        <meta name='apple-mobile-web-app-capable' content='yes' />
+        <meta name='apple-mobile-web-app-status-bar-style' content='black-translucent' />
+        <meta name='apple-mobile-web-app-title' content='Unani PYQ' />
+        <link rel='apple-touch-icon' href='/assets/generated/icon-192.dim_192x192.png' />
+
+        <!-- Google AdSense -->
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3929717277545313"
+             crossorigin="anonymous"></script>
+
+        <!-- Service Worker Registration -->
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function () {
+                    navigator.serviceWorker.register('/sw.js').catch(function (err) {
+                        console.warn('Service worker registration failed:', err);
+                    });
+                });
+            }
+        </script>
+      <script type="module" crossorigin src="/assets/index-BjEYE6va.js"></script>
+      <link rel="stylesheet" crossorigin href="/assets/index-B7SN6tCf.css">
+    </head>
+    <body>
+        <div id='root'></div>
+    </body>
+</html>

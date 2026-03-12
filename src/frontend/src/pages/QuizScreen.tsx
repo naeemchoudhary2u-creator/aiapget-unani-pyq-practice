@@ -205,7 +205,7 @@ export default function QuizScreen({
               optionClass +=
                 " bg-card border-border text-foreground hover:border-gold hover:bg-gold/5 cursor-pointer";
             } else if (isCorrect) {
-              optionClass += " bg-success border-success cursor-default";
+              optionClass += " bg-green-600 border-green-600 cursor-default";
             } else if (isSelected) {
               optionClass +=
                 " bg-destructive/10 border-destructive cursor-default";
@@ -225,7 +225,7 @@ export default function QuizScreen({
                 <span
                   className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold font-heading border transition-colors ${
                     isAnswered && isCorrect
-                      ? "bg-success border-success text-white"
+                      ? "bg-white border-white text-green-700"
                       : isAnswered && isSelected
                         ? "bg-destructive border-destructive text-white"
                         : "border-border bg-muted text-foreground"
@@ -236,7 +236,7 @@ export default function QuizScreen({
                 <span
                   className={`flex-1 ${
                     isAnswered && isCorrect
-                      ? "text-white font-bold"
+                      ? "text-white font-bold text-base"
                       : isAnswered && isSelected && !isCorrect
                         ? "text-destructive font-medium"
                         : "text-foreground"
