@@ -1,20 +1,14 @@
 import {
-  AlertTriangle,
   BookOpen,
-  Calendar,
-  CheckCircle2,
   ChevronRight,
   Clock,
-  CreditCard,
   List,
   ShieldCheck,
   Sparkles,
   Trophy,
-  X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
 import type { Screen } from "../App";
-import { questions as staticQuestions } from "../data/questions";
+import { TOPICS, questions as staticQuestions } from "../data/questions";
 import { useAllQuestions } from "../hooks/useAdminQueries";
 
 interface HomeScreenProps {
@@ -30,58 +24,11 @@ function shuffleArray<T>(arr: T[]): T[] {
   return a;
 }
 
-function getSubscriptionInfo() {
-  try {
-    const raw = localStorage.getItem("aiapget_subscription");
-    if (!raw) return null;
-    const s = JSON.parse(raw);
-    if (
-      (s.status === "approved" || !s.status) &&
-      typeof s.expiresAt === "number"
-    ) {
-      const now = Date.now();
-      const msLeft = s.expiresAt - now;
-      const gracePeriodMs = 24 * 60 * 60 * 1000;
-      const daysRemaining = Math.max(
-        0,
-        Math.ceil(msLeft / (1000 * 60 * 60 * 24)),
-      );
-      const hoursRemaining = Math.max(0, Math.ceil(msLeft / (1000 * 60 * 60)));
-      const isGrace = msLeft < 0 && msLeft > -gracePeriodMs;
-      return {
-        plan: s.plan as string,
-        expiresAt: s.expiresAt as number,
-        daysRemaining,
-        hoursRemaining: isGrace
-          ? Math.max(
-              0,
-              Math.ceil((s.expiresAt + gracePeriodMs - now) / (1000 * 60 * 60)),
-            )
-          : hoursRemaining,
-        isGrace,
-        startDate: s.startDate as string | undefined,
-      };
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
-
 export default function HomeScreen({ onNavigate }: HomeScreenProps) {
   const { data: allQuestions = staticQuestions } = useAllQuestions();
-  const [showPaymentBanner, setShowPaymentBanner] = useState(false);
-  const [subscriptionInfo] = useState(getSubscriptionInfo);
 
-  useEffect(() => {
-    if (localStorage.getItem("aiapget_payment_submitted") === "true") {
-      setShowPaymentBanner(true);
-      localStorage.removeItem("aiapget_payment_submitted");
-    }
-  }, []);
-
-  // Compute unique topics from merged question set
-  const allTopics = Array.from(new Set(allQuestions.map((q) => q.topic)));
+  // Always use the hardcoded 20 official subjects — never derive from question data
+  const allTopics = TOPICS;
 
   const startRandomQuiz = (count = 20) => {
     const shuffled = shuffleArray(allQuestions).slice(0, count);
@@ -97,8 +44,8 @@ export default function HomeScreen({ onNavigate }: HomeScreenProps) {
     },
     {
       icon: <List className="w-6 h-6" />,
-      title: "Browse by Topic",
-      desc: `${allTopics.length} Unani subject categories`,
+      title: "Browse by Subject",
+      desc: `${allTopics.length} official AIAPGET Unani subjects`,
       action: () => onNavigate({ name: "topics", mode: "topic" }),
     },
     {
@@ -114,17 +61,10 @@ export default function HomeScreen({ onNavigate }: HomeScreenProps) {
       action: () => onNavigate({ name: "history" }),
     },
     {
-      icon: <CreditCard className="w-6 h-6" />,
-      title: "Subscription Plans",
-      desc: "Monthly & yearly premium access",
-      action: () => onNavigate({ name: "subscription" }),
-      isSubscription: true,
-    },
-    {
       icon: <ShieldCheck className="w-6 h-6" />,
-      title: "Admin Panel",
-      desc: "Add and manage questions",
-      action: () => onNavigate({ name: "admin" }),
+      title: "Management",
+      desc: "User login activity & admin panel",
+      action: () => onNavigate({ name: "management" }),
       isAdmin: true,
     },
   ];
@@ -132,34 +72,6 @@ export default function HomeScreen({ onNavigate }: HomeScreenProps) {
   return (
     <div className="flex flex-col">
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-6 space-y-6">
-        {/* Subscription submitted success banner */}
-        {showPaymentBanner && (
-          <div
-            data-ocid="home.subscription.success_state"
-            className="flex items-start gap-3 bg-success/10 border border-success/40 rounded-2xl px-4 py-3"
-          >
-            <CheckCircle2 className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-success font-body">
-                Subscription Submitted!
-              </p>
-              <p className="text-xs text-muted-foreground font-body mt-0.5">
-                Your payment has been received. The admin will verify and
-                activate your subscription shortly.
-              </p>
-            </div>
-            <button
-              type="button"
-              data-ocid="home.subscription.close_button"
-              onClick={() => setShowPaymentBanner(false)}
-              className="text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Dismiss"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        )}
-
         {/* Hero Banner */}
         <section className="relative rounded-2xl overflow-hidden shadow-lg">
           <img
@@ -182,7 +94,7 @@ export default function HomeScreen({ onNavigate }: HomeScreenProps) {
         <section className="grid grid-cols-3 gap-3">
           {[
             { label: "Questions", value: allQuestions.length },
-            { label: "Topics", value: allTopics.length },
+            { label: "Subjects", value: allTopics.length },
             { label: "Years", value: "2016–2026" },
           ].map((stat) => (
             <div
@@ -199,72 +111,6 @@ export default function HomeScreen({ onNavigate }: HomeScreenProps) {
           ))}
         </section>
 
-        {/* Subscription Status Card */}
-        {subscriptionInfo && (
-          <section>
-            {subscriptionInfo.isGrace ? (
-              <div
-                data-ocid="home.subscription.grace_state"
-                className="flex items-start gap-3 bg-amber-500/10 border border-amber-500/40 rounded-2xl px-4 py-3"
-              >
-                <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-amber-600 font-body">
-                    Subscription Expiring!
-                  </p>
-                  <p className="text-xs text-muted-foreground font-body mt-0.5">
-                    Your subscription has expired. You have{" "}
-                    <strong className="text-amber-600">
-                      {subscriptionInfo.hoursRemaining}h
-                    </strong>{" "}
-                    grace period left before access is removed.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  data-ocid="home.subscription.renew_button"
-                  onClick={() => onNavigate({ name: "subscription" })}
-                  className="text-xs text-amber-600 font-semibold hover:text-amber-700 transition-colors whitespace-nowrap"
-                >
-                  Renew →
-                </button>
-              </div>
-            ) : (
-              <div
-                data-ocid="home.subscription.card"
-                className="flex items-center gap-3 bg-success/8 border border-success/30 rounded-2xl px-4 py-3"
-              >
-                <Calendar className="w-5 h-5 text-success flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground font-body">
-                    {subscriptionInfo.daysRemaining} Days Remaining
-                  </p>
-                  <p className="text-xs text-muted-foreground font-body">
-                    {subscriptionInfo.plan === "trial"
-                      ? "Free Trial"
-                      : subscriptionInfo.plan === "yearly"
-                        ? "Yearly Plan"
-                        : "Monthly Plan"}{" "}
-                    · Expires{" "}
-                    {new Date(subscriptionInfo.expiresAt).toLocaleDateString(
-                      "en-IN",
-                      { day: "2-digit", month: "short", year: "numeric" },
-                    )}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  data-ocid="home.subscription.manage_button"
-                  onClick={() => onNavigate({ name: "subscription" })}
-                  className="text-xs text-success font-semibold hover:text-success/80 transition-colors whitespace-nowrap"
-                >
-                  Manage →
-                </button>
-              </div>
-            )}
-          </section>
-        )}
-
         {/* Navigation Cards */}
         <section className="space-y-3">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest font-body px-1">
@@ -279,18 +125,14 @@ export default function HomeScreen({ onNavigate }: HomeScreenProps) {
                 className={`group bg-card border rounded-xl p-4 flex items-center gap-4 text-left hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gold/50 ${
                   card.isAdmin
                     ? "border-gold/40 hover:border-gold"
-                    : card.isSubscription
-                      ? "border-gold/60 hover:border-gold bg-gradient-to-r from-card to-gold/5"
-                      : "border-border hover:border-gold"
+                    : "border-border hover:border-gold"
                 }`}
               >
                 <div
                   className={`w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
                     card.isAdmin
                       ? "bg-gold/15 text-gold group-hover:bg-gold/25"
-                      : card.isSubscription
-                        ? "bg-gold/20 text-gold group-hover:bg-gold/30"
-                        : "bg-primary/10 text-primary group-hover:bg-gold/20 group-hover:text-gold"
+                      : "bg-primary/10 text-primary group-hover:bg-gold/20 group-hover:text-gold"
                   }`}
                 >
                   {card.icon}
@@ -301,11 +143,6 @@ export default function HomeScreen({ onNavigate }: HomeScreenProps) {
                     {card.isAdmin && (
                       <span className="text-[10px] font-body font-normal bg-gold/15 text-gold px-1.5 py-0.5 rounded-full border border-gold/30">
                         Admin
-                      </span>
-                    )}
-                    {card.isSubscription && (
-                      <span className="text-[10px] font-body font-normal bg-gold/20 text-gold px-1.5 py-0.5 rounded-full border border-gold/40">
-                        Premium
                       </span>
                     )}
                   </div>
@@ -335,8 +172,8 @@ export default function HomeScreen({ onNavigate }: HomeScreenProps) {
             <strong className="text-foreground">
               Unani System of Medicine
             </strong>
-            , covering subjects like Kulliyat, Ilmul Advia, Moalijat, Tashreeh,
-            and more.
+            , covering all 20 official Unani subjects like Kulliyat Umoore
+            Tabiya, Ilmul Advia, Mahiyatul Amraz, Tashreehul Badan, and more.
           </p>
         </section>
       </main>

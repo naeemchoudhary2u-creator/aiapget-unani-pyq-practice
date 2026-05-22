@@ -1,7 +1,14 @@
-import List "mo:core/List";
-import Array "mo:core/Array";
-
 module {
+  type UserLoginRecord = {
+    userId : Text;
+    userName : Text;
+    loginType : Text;
+    contactInfo : Text;
+    lastLoginTime : Int;
+    loginCount : Nat;
+    lastDeviceId : Text;
+    subscriptionStatus : Text;
+  };
   type Question = {
     id : Nat;
     questionText : Text;
@@ -11,25 +18,6 @@ module {
     year : Text;
     explanation : ?Text;
   };
-
-  type UserProfile = {
-    name : Text;
-    age : Nat;
-    gender : Text;
-  };
-
-  type SubscriptionSettings = {
-    monthlyPrice : Nat;
-    yearlyPrice : Nat;
-    freeTrialDays : Nat;
-  };
-
-  type PaymentStatus = {
-    #pending;
-    #approved;
-    #rejected;
-  };
-
   type PaymentRecord = {
     id : Text;
     date : Text;
@@ -40,12 +28,11 @@ module {
     userId : Text;
     userName : Text;
     deviceId : ?Text;
-    status : PaymentStatus;
+    status : Text;
     approvedAt : ?Text;
     rejectedAt : ?Text;
   };
-
-  public type UserSubscription = {
+  type UserSubscription = {
     userId : Text;
     planType : Text;
     status : Text;
@@ -57,23 +44,24 @@ module {
     userName : Text;
   };
 
-  public type OldActor = {
+  type OldState = {
     adminQuestions : [Question];
     paymentRecords : [PaymentRecord];
-    userSubscriptions : List.List<UserSubscription>;
-    subscriptionSettings : SubscriptionSettings;
+    subscriptionRecords : [UserSubscription];
+    loginRecords : [UserLoginRecord];
   };
 
-  public type NewActor = {
+  type NewState = {
     adminQuestions : [Question];
     paymentRecords : [PaymentRecord];
-    userSubscriptions : List.List<UserSubscription>;
-    subscriptionSettings : SubscriptionSettings;
-    userSubscriptionsArray : [UserSubscription];
+    subscriptionRecords : [UserSubscription];
   };
 
-  public func run(old : OldActor) : NewActor {
-    let userSubscriptionsArray = old.userSubscriptions.toArray();
-    { old with userSubscriptionsArray };
+  public func migrate(old : OldState) : NewState {
+    {
+      adminQuestions = old.adminQuestions;
+      paymentRecords = old.paymentRecords;
+      subscriptionRecords = old.subscriptionRecords;
+    }
   };
 };

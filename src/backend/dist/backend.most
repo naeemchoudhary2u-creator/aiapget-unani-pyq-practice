@@ -1,0 +1,135 @@
+// Version: 3.0.0
+type Data__791452850<K, V> =
+  {var count : Nat__490723111; kvs : [var ?(K, V)]};
+type Internal__8484328<K, V> =
+  {children : [var ?Node__46230540<K, V>]; data : Data__791452850<K, V>};
+type Leaf__809889148<K, V> = {data : Data__791452850<K, V>};
+type Map__158565046<K, V> = Map__297112838<K, V>;
+type Map__297112838<K, V> =
+  {var root : Node__46230540<K, V>; var size : Nat__490723111};
+type Map__605269027<K, V> = Map__158565046<K, V>;
+type Nat__490723111 = Nat__920180692;
+type Nat__920180692 = Nat;
+type Node__46230540<K, V> =
+  {#internal : Internal__8484328<K, V>; #leaf : Leaf__809889148<K, V>};
+type PaymentRecord__216844392 =
+  {
+    amount : Text;
+    approvedAt : ?Text;
+    date : Text;
+    deviceId : ?Text;
+    id : Text;
+    paymentMethod : Text;
+    plan : Text;
+    rejectedAt : ?Text;
+    status : Text;
+    userId : Text;
+    userName : Text;
+    utrId : Text
+  };
+type PaymentRecord__972883957 =
+  {
+    amount : Text;
+    approvedAt : ?Text;
+    date : Text;
+    deviceId : ?Text;
+    id : Text;
+    paymentMethod : Text;
+    plan : Text;
+    rejectedAt : ?Text;
+    status : Text;
+    userId : Text;
+    userName : Text;
+    utrId : Text
+  };
+type Question__201377195 =
+  {
+    answerOptions : [Text];
+    correctAnswerIndex : Nat;
+    explanation : ?Text;
+    id : Nat;
+    questionText : Text;
+    topic : Text;
+    year : Text
+  };
+type Question__879138514 =
+  {
+    answerOptions : [Text];
+    correctAnswerIndex : Nat;
+    explanation : ?Text;
+    id : Nat;
+    questionText : Text;
+    topic : Text;
+    year : Text
+  };
+type UserLoginRecord__489128857 =
+  {
+    contactInfo : Text;
+    lastDeviceId : Text;
+    lastLoginTime : Int;
+    loginCount : Nat;
+    loginType : Text;
+    subscriptionStatus : Text;
+    userId : Text;
+    userName : Text
+  };
+type UserProfile__491224006 = {age : Nat; gender : Text; name : Text};
+type UserRole__1054455867 = {#admin; #guest; #user};
+type UserSubscription__165212294 =
+  {
+    deviceId : Text;
+    expiryDate : Text;
+    lastLoginDevice : Text;
+    paymentRef : Text;
+    planType : Text;
+    startDate : Text;
+    status : Text;
+    userId : Text;
+    userName : Text
+  };
+type UserSubscription__35430167 =
+  {
+    deviceId : Text;
+    expiryDate : Text;
+    lastLoginDevice : Text;
+    paymentRef : Text;
+    planType : Text;
+    startDate : Text;
+    status : Text;
+    userId : Text;
+    userName : Text
+  };
+actor ({
+  stable accessControlState :
+    {
+      var adminAssigned : Bool;
+      userRoles : Map__605269027<Principal, UserRole__1054455867>
+    };
+  in adminQuestions : [Question__201377195];
+  in loginRecords : [UserLoginRecord__489128857];
+  in paymentRecords : [PaymentRecord__972883957];
+  in subscriptionRecords : [UserSubscription__35430167];
+  stable var subscriptionSettings :
+    {freeTrialDays : Nat; monthlyPrice : Nat; yearlyPrice : Nat};
+  stable userProfiles :
+    {
+      var root : Node__46230540<Principal, UserProfile__491224006>;
+      var size : Nat__490723111
+    }
+}, {
+  stable accessControlState :
+    {
+      var adminAssigned : Bool;
+      userRoles : Map__605269027<Principal, UserRole__1054455867>
+    };
+  stable var adminQuestions : [Question__879138514];
+  stable var paymentRecords : [PaymentRecord__216844392];
+  stable var subscriptionRecords : [UserSubscription__165212294];
+  stable var subscriptionSettings :
+    {freeTrialDays : Nat; monthlyPrice : Nat; yearlyPrice : Nat};
+  stable userProfiles :
+    {
+      var root : Node__46230540<Principal, UserProfile__491224006>;
+      var size : Nat__490723111
+    }
+}) ;

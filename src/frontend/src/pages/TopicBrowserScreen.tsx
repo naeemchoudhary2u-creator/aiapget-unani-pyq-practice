@@ -44,10 +44,8 @@ export default function TopicBrowserScreen({
 
   const { data: allQuestions = staticQuestions, isLoading } = useAllQuestions();
 
-  // Build topic list: include all static topics + any new topics from backend questions
-  const allTopics = Array.from(
-    new Set([...TOPICS, ...allQuestions.map((q) => q.topic)]),
-  );
+  // Always use the hardcoded 20 official subjects — never derive from question data
+  const allTopics = TOPICS;
 
   // Build year list: include all static years + any new years from backend questions
   // Local Question.year is always a number
@@ -97,7 +95,7 @@ export default function TopicBrowserScreen({
                 : "text-white/60 hover:text-white/80"
             }`}
           >
-            By Topic
+            By Subject
           </button>
           <button
             type="button"

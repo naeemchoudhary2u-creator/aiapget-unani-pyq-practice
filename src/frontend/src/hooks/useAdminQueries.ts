@@ -1,57 +1,52 @@
+/**
+ * Admin panel query hooks — clean rewrite.
+ *
+ * RULES:
+ * - ALL queries use enabled: !!actor  (never isReady, never isFetching)
+ * - NO localStorage caching for payments / subscriptions / logins
+ * - Backend is the ONLY source of truth for admin data
+ * - Simple queryFn: call actor method, return result. React Query handles retry.
+ */
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type {
-  PaymentRecord as BackendPaymentRecord,
-  Question as BackendQuestion,
-} from "../backend";
-import { type Question, questions as staticQuestions } from "../data/questions";
+import type { Question } from "../backend";
+import type { Question as LocalQuestion } from "../data/questions";
+import { questions as staticQuestions } from "../data/questions";
 import { useActor } from "./useActor";
 
-export function useRemoveQuestion() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
+// Re-export types so pages can import from here
+export type { Question };
 
-  return useMutation({
-    mutationFn: async (id: bigint) => {
-      if (!actor) throw new Error("Actor not available");
-      return await actor.removeQuestion(id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["adminQuestions"] });
-      queryClient.invalidateQueries({ queryKey: ["allQuestions"] });
-      queryClient.refetchQueries({ queryKey: ["adminQuestions"] });
-      queryClient.refetchQueries({ queryKey: ["allQuestions"] });
-    },
-  });
-}
+// ── Shared actor-ready gate ───────────────────────────────────────────────────
+// useActor exposes `isReady` (set after health check / deadline).
+// ALL queries that talk to the backend MUST gate on both !!actor && isReady
+// so they never fire into a dead connection.
 
-export function useGetAdminQuestions() {
-  const { actor } = useActor();
+// ── Question hooks (admin) ────────────────────────────────────────────────────
 
-  return useQuery<BackendQuestion[]>({
+export function useAdminQuestions() {
+  const { actor, isReady } = useActor();
+  return useQuery<Question[]>({
     queryKey: ["adminQuestions"],
     queryFn: async () => {
-      if (!actor) return [];
-      try {
-        return await actor.getQuestions();
-      } catch {
-        // Silently return empty array on any backend error (including auth errors from old cache)
-        return [];
-      }
+      if (!actor) throw new Error("Actor not available");
+      return await actor.getAdminQuestions();
     },
-    enabled: !!actor,
+    enabled: !!actor && isReady,
     staleTime: 0,
-    refetchOnMount: true,
-    refetchInterval: 10000, // Poll every 10s — real-time sync across all devices
-    retry: false,
+    refetchInterval: 30_000,
+    retry: 3,
   });
 }
+
+// Keep the old name so any page importing useGetAdminQuestions still compiles.
+export const useGetAdminQuestions = useAdminQuestions;
 
 export function useAddQuestion() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: async (question: {
+    mutationFn: async (q: {
       questionText: string;
       answerOptions: string[];
       correctAnswerIndex: number;
@@ -60,48 +55,70 @@ export function useAddQuestion() {
       explanation?: string;
     }) => {
       if (!actor) throw new Error("Actor not available");
-
-      const newQuestion: BackendQuestion = {
+      const newQuestion: Question = {
         id: BigInt(Date.now()),
-        questionText: question.questionText,
-        answerOptions: question.answerOptions,
-        correctAnswerIndex: BigInt(question.correctAnswerIndex),
-        topic: question.topic,
-        year: String(question.year),
-        // Only include explanation if it has a non-empty value
-        ...(question.explanation ? { explanation: question.explanation } : {}),
+        questionText: q.questionText,
+        answerOptions: q.answerOptions,
+        correctAnswerIndex: BigInt(q.correctAnswerIndex),
+        topic: q.topic,
+        year: q.year,
+        ...(q.explanation ? { explanation: q.explanation } : {}),
       };
-
-      const result = await actor.addQuestion(newQuestion);
-      return result;
+      return await actor.addQuestion(newQuestion);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["adminQuestions"] });
       queryClient.invalidateQueries({ queryKey: ["allQuestions"] });
-      queryClient.refetchQueries({ queryKey: ["adminQuestions"] });
-      queryClient.refetchQueries({ queryKey: ["allQuestions"] });
     },
   });
 }
 
-/**
- * Converts a backend Question (bigint fields) to the local Question format.
- * Backend year is a string (e.g. "2023"), local year is a number.
- */
-function convertBackendQuestion(bq: BackendQuestion, index: number): Question {
+export function useRemoveQuestion() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: bigint) => {
+      if (!actor) throw new Error("Actor not available");
+      return await actor.removeQuestion(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminQuestions"] });
+      queryClient.invalidateQueries({ queryKey: ["allQuestions"] });
+    },
+  });
+}
+
+// ── Data counts (verification) ────────────────────────────────────────────────
+
+export function useDataCounts() {
+  const { actor } = useActor();
+  return useQuery({
+    queryKey: ["dataCounts"],
+    queryFn: async () => {
+      if (!actor) throw new Error("Actor not available");
+      return await actor.getDataCounts();
+    },
+    enabled: !!actor,
+    staleTime: 0,
+    refetchInterval: 10_000,
+    retry: 3,
+  });
+}
+
+// ── Public all-questions (for quiz pages) ─────────────────────────────────────
+// Kept here so pages that import useAllQuestions from here still compile.
+
+function convertBackendQuestion(bq: Question, index: number): LocalQuestion {
   const yearNum = Number.parseInt(bq.year, 10);
-  const options = bq.answerOptions;
-  // Ensure we always have exactly 4 options for the tuple type
-  const opts: [string, string, string, string] = [
-    options[0] ?? "",
-    options[1] ?? "",
-    options[2] ?? "",
-    options[3] ?? "",
-  ];
   return {
-    id: 100000 + index, // offset to avoid ID collisions with static questions
+    id: 100_000 + index,
     text: bq.questionText,
-    options: opts,
+    options: [
+      bq.answerOptions[0] ?? "",
+      bq.answerOptions[1] ?? "",
+      bq.answerOptions[2] ?? "",
+      bq.answerOptions[3] ?? "",
+    ],
     correctIndex: Number(bq.correctAnswerIndex),
     topic: bq.topic,
     year: Number.isNaN(yearNum) ? 0 : yearNum,
@@ -109,127 +126,29 @@ function convertBackendQuestion(bq: BackendQuestion, index: number): Question {
   };
 }
 
-// Hook to fetch all payment records from backend
-export function usePaymentRecords() {
-  const { actor } = useActor();
-  return useQuery<BackendPaymentRecord[]>({
-    queryKey: ["paymentRecords"],
-    queryFn: async () => {
-      if (!actor) return [];
-      try {
-        return await actor.getPaymentRecords();
-      } catch {
-        return [];
-      }
-    },
-    enabled: !!actor,
-    staleTime: 0,
-    refetchOnMount: true,
-    refetchInterval: 10000, // Poll every 10s — real-time sync across all devices
-    retry: false,
-  });
-}
-
-// Hook to submit a payment record to backend
-export function useSubmitPaymentRecord() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (record: BackendPaymentRecord) => {
-      if (!actor) throw new Error("Actor not available");
-      return await actor.submitPaymentRecord(record);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["paymentRecords"] });
-    },
-  });
-}
-
-// Hook to approve a payment
-export function useApprovePayment() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({
-      paymentId,
-      approvedAt,
-    }: { paymentId: string; approvedAt: string }) => {
-      if (!actor) throw new Error("Actor not available");
-      return await actor.approvePayment(paymentId, approvedAt);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["paymentRecords"] });
-    },
-  });
-}
-
-// Hook to reject a payment
-export function useRejectPayment() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({
-      paymentId,
-      rejectedAt,
-    }: { paymentId: string; rejectedAt: string }) => {
-      if (!actor) throw new Error("Actor not available");
-      return await actor.rejectPayment(paymentId, rejectedAt);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["paymentRecords"] });
-    },
-  });
-}
-
-// Hook to reset device binding
-export function useResetDeviceBinding() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (paymentId: string) => {
-      if (!actor) throw new Error("Actor not available");
-      return await actor.resetDeviceBinding(paymentId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["paymentRecords"] });
-    },
-  });
-}
-
-/**
- * Fetches all questions from the backend (public endpoint) and merges them
- * with the static local questions, deduplicating by question text.
- */
 export function useAllQuestions() {
   const { actor } = useActor();
-
-  return useQuery<Question[]>({
+  return useQuery<LocalQuestion[]>({
     queryKey: ["allQuestions"],
     queryFn: async () => {
       if (!actor) return staticQuestions;
       try {
         const backendQuestions = await actor.getQuestions();
         const converted = backendQuestions.map(convertBackendQuestion);
-
-        // Deduplicate: prefer backend questions over static ones with same text
         const backendTexts = new Set(
           converted.map((q) => q.text.trim().toLowerCase()),
         );
         const filteredStatic = staticQuestions.filter(
           (q) => !backendTexts.has(q.text.trim().toLowerCase()),
         );
-
         return [...filteredStatic, ...converted];
       } catch {
         return staticQuestions;
       }
     },
-    // Always enabled — returns staticQuestions immediately when actor is null,
-    // then re-fetches with backend data once actor is available
     enabled: true,
     staleTime: 0,
-    refetchOnMount: true,
-    refetchInterval: 10000, // Poll every 10s — newly added questions appear everywhere
-    retry: false,
+    refetchInterval: 30_000,
+    retry: 3,
   });
 }

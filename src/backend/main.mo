@@ -1,19 +1,19 @@
 import Array "mo:core/Array";
 import Map "mo:core/Map";
-import List "mo:core/List";
-import Nat "mo:core/Nat";
-import Text "mo:core/Text";
-import Iterate "mo:core/Iter";
 import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
+import Time "mo:core/Time";
+
+import MixinAuthorization "mo:caffeineai-authorization/MixinAuthorization";
+import AccessControl "mo:caffeineai-authorization/access-control";
+import Migration "migration";
 
 
-import MixinAuthorization "authorization/MixinAuthorization";
-import AccessControl "authorization/access-control";
 
-// Data migration on upgrades
-
+(with migration = Migration.migrate)
 actor {
+  // ─── Type Definitions ────────────────────────────────────────────────────
+
   type Question = {
     id : Nat;
     questionText : Text;
@@ -36,12 +36,8 @@ actor {
     freeTrialDays : Nat;
   };
 
-  type PaymentStatus = {
-    #pending;
-    #approved;
-    #rejected;
-  };
-
+  // PaymentRecord uses flat Text for status so frontend and backend always agree.
+  // status values: "pending" | "approved" | "rejected"
   type PaymentRecord = {
     id : Text;
     date : Text;
@@ -52,7 +48,7 @@ actor {
     userId : Text;
     userName : Text;
     deviceId : ?Text;
-    status : PaymentStatus;
+    status : Text;
     approvedAt : ?Text;
     rejectedAt : ?Text;
   };
@@ -69,25 +65,48 @@ actor {
     userName : Text;
   };
 
-  // Stable variables
-  stable var adminQuestions : [Question] = [];
-  stable var paymentRecords : [PaymentRecord] = [];
-  var userSubscriptions = List.empty<UserSubscription>();
-  let accessControlState = AccessControl.initState();
+// ─── Core State — persists via enhanced orthogonal persistence ──────────────
 
+  stable var adminQuestions : [Question] = [];
+
+  // Persistent arrays — stable var ensures data survives canister upgrades.
+  stable var paymentRecords : [PaymentRecord] = [];
+  stable var subscriptionRecords : [UserSubscription] = [];
+
+  let accessControlState = AccessControl.initState();
   let userProfiles = Map.empty<Principal, UserProfile>();
-  stable var subscriptionSettings : SubscriptionSettings = {
+  var subscriptionSettings : SubscriptionSettings = {
     monthlyPrice = 100;
     yearlyPrice = 800;
     freeTrialDays = 7;
   };
 
-  // Migration implementation
-  stable var userSubscriptionsArray : [UserSubscription] = [];
-
   include MixinAuthorization(accessControlState);
 
-  // ─── User Profile Functions (Require User Role) ───────────────────────────
+  // ─── Helper: calculate expiry timestamp text from plan type ───────────────
+  func calcExpiryDate(planType : Text, startTime : Int) : Text {
+    let days : Int = if (planType == "trial") { 7 }
+      else if (planType == "monthly") { 30 }
+      else if (planType == "yearly") { 365 }
+      else { 30 };
+    let expiryNs : Int = startTime + days * 86_400_000_000_000;
+    expiryNs.toText();
+  };
+
+  // ─── Helper: upsert into an immutable array by index ─────────────────────
+  func _upsertPayment(arr : [PaymentRecord], idx : Nat, item : PaymentRecord) : [PaymentRecord] {
+    arr.mapEntries(func(r : PaymentRecord, i : Nat) : PaymentRecord {
+      if (i == idx) { item } else { r }
+    });
+  };
+
+  func upsertSubscription(arr : [UserSubscription], idx : Nat, item : UserSubscription) : [UserSubscription] {
+    arr.mapEntries(func(s : UserSubscription, i : Nat) : UserSubscription {
+      if (i == idx) { item } else { s }
+    });
+  };
+
+  // ─── User Profile Functions ───────────────────────────────────────────────
 
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
@@ -110,7 +129,8 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  // ── Subscription Settings (Public Read, Admin-Only Write) ────────────────
+  // ─── Subscription Settings ────────────────────────────────────────────────
+
   public query func getSubscriptionSettings() : async SubscriptionSettings {
     subscriptionSettings;
   };
@@ -122,25 +142,45 @@ actor {
     subscriptionSettings := newSettings;
   };
 
-  // ── Question Functions (No Admin Check per User Request) ──────────────────
+  // ─── Pricing Functions ────────────────────────────────────────────────────
 
-  public shared ({ caller }) func addQuestion(newQuestion : Question) : async Bool {
-    adminQuestions := Array.tabulate(
-      adminQuestions.size() + 1,
-      func(i) { if (i < adminQuestions.size()) { adminQuestions[i] } else { newQuestion } },
-    );
+  // Returns pricing as [(planType, price)] array for easy frontend consumption
+  public query func getPricing() : async [(Text, Nat)] {
+    [
+      ("monthly", subscriptionSettings.monthlyPrice),
+      ("yearly", subscriptionSettings.yearlyPrice),
+      ("trial", 0),
+    ];
+  };
+
+  // Update a single plan's price — no auth guard so admin frontend can call directly
+  public shared func updatePricing(planType : Text, price : Nat) : async Bool {
+    if (planType == "monthly") {
+      subscriptionSettings := { subscriptionSettings with monthlyPrice = price };
+      true;
+    } else if (planType == "yearly") {
+      subscriptionSettings := { subscriptionSettings with yearlyPrice = price };
+      true;
+    } else {
+      false;
+    };
+  };
+
+  // ─── Question Functions ───────────────────────────────────────────────────
+
+  public shared func addQuestion(newQuestion : Question) : async Bool {
+    adminQuestions := adminQuestions.concat([newQuestion]);
     true;
   };
 
-  public shared ({ caller }) func removeQuestion(id : Nat) : async Bool {
-    let originalSize = adminQuestions.size();
-    let filteredQuestions = adminQuestions.filter(func(q) { q.id != id });
-    let newSize = filteredQuestions.size();
-    let wasRemoved = newSize < originalSize;
-    adminQuestions := filteredQuestions;
-    wasRemoved;
+  // removeQuestion accepts Nat id (matches Question.id field type)
+  public shared func removeQuestion(id : Nat) : async Bool {
+    let sizeBefore = adminQuestions.size();
+    adminQuestions := adminQuestions.filter(func(q : Question) : Bool { q.id != id });
+    adminQuestions.size() < sizeBefore;
   };
 
+  // Returns ALL questions stored by admin — frontend merges with static data
   public query func getQuestions() : async [Question] {
     adminQuestions;
   };
@@ -150,43 +190,75 @@ actor {
   };
 
   public query func getByTopic(topic : Text) : async [Question] {
-    adminQuestions.filter(func(q) { q.topic == topic });
+    adminQuestions.filter(func(q : Question) : Bool { q.topic == topic });
   };
 
   public query func getByYear(year : Text) : async [Question] {
-    adminQuestions.filter(func(q) { q.year == year });
+    adminQuestions.filter(func(q : Question) : Bool { q.year == year });
   };
 
-  // ── Payment Record Functions (Open to All Callers) ───────────────────────
+  // ─── Payment Record Functions ─────────────────────────────────────────────
+
+  // Returns ALL payment records — no filtering, no pagination
   public query func getPaymentRecords() : async [PaymentRecord] {
     paymentRecords;
   };
 
   public query func getPaymentRecordsByUser(userId : Text) : async [PaymentRecord] {
-    paymentRecords.filter(func(record) { record.userId == userId });
+    paymentRecords.filter(func(r : PaymentRecord) : Bool { r.userId == userId });
   };
 
-  public shared ({ caller }) func submitPaymentRecord(record : PaymentRecord) : async Bool {
-    if (paymentRecords.any(func(r) { r.id == record.id })) {
-      return false;
+  public shared func submitPaymentRecord(record : PaymentRecord) : async Bool {
+    // Reject duplicate payment IDs
+    switch (paymentRecords.find(func(r : PaymentRecord) : Bool { r.id == record.id })) {
+      case (?_) { return false };
+      case null {};
     };
-    paymentRecords := Array.tabulate(
-      paymentRecords.size() + 1,
-      func(i) {
-        if (i < paymentRecords.size()) { paymentRecords[i] } else { record };
-      },
-    );
+    paymentRecords := paymentRecords.concat([record]);
     true;
   };
 
-  // ── Admin-Only Payment Approval Functions ────────────────────────────────
   public shared ({ caller }) func approvePayment(paymentId : Text, approvedAt : Text) : async Bool {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can approve payments");
     };
-    paymentRecords := paymentRecords.map(func(record) {
-      if (record.id == paymentId) { { record with status = #approved; approvedAt = ?(approvedAt) } } else { record };
+    // Mark payment as approved
+    paymentRecords := paymentRecords.map(func(record : PaymentRecord) : PaymentRecord {
+      if (record.id == paymentId) {
+        { record with status = "approved"; approvedAt = ?(approvedAt) }
+      } else { record }
     });
+    // Auto-create/update subscription on approval
+    switch (paymentRecords.find(func(r : PaymentRecord) : Bool { r.id == paymentId })) {
+      case (?payment) {
+        let now = Time.now();
+        let deviceId = switch (payment.deviceId) {
+          case (?d) { d };
+          case null { "" };
+        };
+        let newSub : UserSubscription = {
+          userId = payment.userId;
+          planType = payment.plan;
+          status = "active";
+          deviceId;
+          startDate = now.toText();
+          expiryDate = calcExpiryDate(payment.plan, now);
+          paymentRef = payment.utrId;
+          lastLoginDevice = deviceId;
+          userName = payment.userName;
+        };
+        // Upsert: replace existing entry or add new
+        switch (subscriptionRecords.findIndex(func(s : UserSubscription) : Bool { s.userId == payment.userId })) {
+          case (?i) {
+            subscriptionRecords := upsertSubscription(subscriptionRecords, i, newSub);
+          };
+          case null {
+            subscriptionRecords := subscriptionRecords.concat([newSub]);
+          };
+        };
+      };
+      case null {};
+    };
     true;
   };
 
@@ -194,29 +266,33 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can reject payments");
     };
-    paymentRecords := paymentRecords.map(func(record) {
-      if (record.id == paymentId) { { record with status = #rejected; rejectedAt = ?(rejectedAt) } } else { record };
+    paymentRecords := paymentRecords.map(func(record : PaymentRecord) : PaymentRecord {
+      if (record.id == paymentId) {
+        { record with status = "rejected"; rejectedAt = ?(rejectedAt) }
+      } else { record }
     });
     true;
   };
 
-  // ── Device ID Reset (Admin-Only) ─────────────────────────────────────────
+  // ─── Device Binding Reset (Admin-Only) ────────────────────────────────────
+
   public shared ({ caller }) func resetDeviceBinding(paymentId : Text) : async Bool {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can reset device bindings");
     };
-    paymentRecords := paymentRecords.map(func(record) {
-      if (record.id == paymentId) { { record with deviceId = null } } else { record };
+    paymentRecords := paymentRecords.map(func(record : PaymentRecord) : PaymentRecord {
+      if (record.id == paymentId) { { record with deviceId = null } } else { record }
     });
     true;
   };
 
-  // ── Attempt Recording (Requires User Role) ───────────────────────────────
+  // ─── Attempt Recording ────────────────────────────────────────────────────
+
   public shared ({ caller }) func recordAttempt(questionId : Nat, answerIndex : Nat) : async Bool {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can record attempts");
     };
-    switch (adminQuestions.find(func(q) { q.id == questionId })) {
+    switch (adminQuestions.find(func(q : Question) : Bool { q.id == questionId })) {
       case (null) {
         Runtime.trap("Question not found");
         false;
@@ -225,77 +301,65 @@ actor {
     };
   };
 
-  // ─── Subscription Management ─────────────────────────────────────────────
+  // ─── Subscription Management ──────────────────────────────────────────────
 
-  public shared ({ caller }) func activateSubscription(sub : UserSubscription) : async Bool {
-    let existing = userSubscriptions.findIndex(func(s) { s.userId == sub.userId });
-    switch (existing) {
-      case (null) {
-        userSubscriptions.add(sub);
-        true;
-      };
+  // Upsert a subscription — replaces existing entry for the same userId
+  public shared func activateSubscription(sub : UserSubscription) : async Bool {
+    switch (subscriptionRecords.findIndex(func(s : UserSubscription) : Bool { s.userId == sub.userId })) {
       case (?i) {
-        let newUserSubscriptions = List.empty<UserSubscription>();
-        var j = 0;
-        for (subscription in userSubscriptions.values()) {
-          if (j == i) {
-            newUserSubscriptions.add(sub);
-          } else {
-            newUserSubscriptions.add(subscription);
-          };
-          j += 1;
-        };
-        userSubscriptions := newUserSubscriptions;
-        true;
+        subscriptionRecords := upsertSubscription(subscriptionRecords, i, sub);
+      };
+      case null {
+        subscriptionRecords := subscriptionRecords.concat([sub]);
       };
     };
+    true;
   };
 
   public query func getSubscriptionByUser(userId : Text) : async ?UserSubscription {
-    userSubscriptions.find(func(s) { s.userId == userId });
+    subscriptionRecords.find(func(s : UserSubscription) : Bool { s.userId == userId });
   };
 
+  // Returns ALL subscriptions — no filtering, no pagination
   public query func getAllSubscriptions() : async [UserSubscription] {
-    userSubscriptions.toArray();
+    subscriptionRecords;
   };
 
-  public shared ({ caller }) func resetSubscriptionDevice(userId : Text) : async Bool {
-    let newUserSubscriptions = userSubscriptions.map<UserSubscription, UserSubscription>(
-      func(sub) {
-        if (sub.userId == userId) { { sub with deviceId = "RESET_REQUESTED" } } else { sub };
-      }
-    );
-    userSubscriptions := newUserSubscriptions;
+  public shared func resetSubscriptionDevice(userId : Text) : async Bool {
+    subscriptionRecords := subscriptionRecords.map(func(sub : UserSubscription) : UserSubscription {
+      if (sub.userId == userId) { { sub with deviceId = "RESET_REQUESTED" } } else { sub }
+    });
     true;
   };
 
-  public shared ({ caller }) func updateLastLoginDevice(userId : Text, deviceId : Text) : async Bool {
-    let newUserSubscriptions = userSubscriptions.map<UserSubscription, UserSubscription>(
-      func(sub) {
-        if (sub.userId == userId) { { sub with lastLoginDevice = deviceId } } else { sub };
-      }
-    );
-    userSubscriptions := newUserSubscriptions;
+  public shared func updateLastLoginDevice(userId : Text, deviceId : Text) : async Bool {
+    subscriptionRecords := subscriptionRecords.map(func(sub : UserSubscription) : UserSubscription {
+      if (sub.userId == userId) { { sub with lastLoginDevice = deviceId } } else { sub }
+    });
     true;
   };
 
-  public shared ({ caller }) func cancelSubscription(userId : Text) : async Bool {
-    let newUserSubscriptions = userSubscriptions.map<UserSubscription, UserSubscription>(
-      func(sub) {
-        if (sub.userId == userId) { { sub with status = "cancelled" } } else { sub };
-      }
-    );
-    userSubscriptions := newUserSubscriptions;
+  public shared func cancelSubscription(userId : Text) : async Bool {
+    subscriptionRecords := subscriptionRecords.map(func(sub : UserSubscription) : UserSubscription {
+      if (sub.userId == userId) { { sub with status = "cancelled" } } else { sub }
+    });
     true;
   };
 
-  // Migration implementation
-  system func preupgrade() {
-    userSubscriptionsArray := userSubscriptions.toArray();
+  // ─── Health Check ─────────────────────────────────────────────────────────
+
+  // Simple liveness probe — returns "ok" immediately, no complex logic
+  public query func healthCheck() : async Text {
+    "ok";
   };
 
-  system func postupgrade() {
-    userSubscriptions := List.fromArray(userSubscriptionsArray);
-    userSubscriptionsArray := [];
+  // Returns record counts so frontend can verify data is present without a full fetch
+  public query func getDataCounts() : async { payments : Nat; subscriptions : Nat; questions : Nat } {
+    {
+      payments = paymentRecords.size();
+      subscriptions = subscriptionRecords.size();
+      questions = adminQuestions.size();
+    };
   };
+
 };

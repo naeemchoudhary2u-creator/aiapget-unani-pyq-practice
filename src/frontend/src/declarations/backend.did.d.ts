@@ -12,7 +12,7 @@ import type { Principal } from '@icp-sdk/core/principal';
 
 export interface PaymentRecord {
   'id' : string,
-  'status' : PaymentStatus,
+  'status' : string,
   'userName' : string,
   'paymentMethod' : string,
   'userId' : string,
@@ -24,9 +24,6 @@ export interface PaymentRecord {
   'utrId' : string,
   'amount' : string,
 }
-export type PaymentStatus = { 'pending' : null } |
-  { 'approved' : null } |
-  { 'rejected' : null };
 export interface Question {
   'id' : bigint,
   'topic' : string,
@@ -61,7 +58,7 @@ export interface UserSubscription {
   'startDate' : string,
 }
 export interface _SERVICE {
-  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  '_initializeAccessControl' : ActorMethod<[], undefined>,
   'activateSubscription' : ActorMethod<[UserSubscription], boolean>,
   'addQuestion' : ActorMethod<[Question], boolean>,
   'approvePayment' : ActorMethod<[string, string], boolean>,
@@ -73,12 +70,18 @@ export interface _SERVICE {
   'getByYear' : ActorMethod<[string], Array<Question>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getDataCounts' : ActorMethod<
+    [],
+    { 'subscriptions' : bigint, 'payments' : bigint, 'questions' : bigint }
+  >,
   'getPaymentRecords' : ActorMethod<[], Array<PaymentRecord>>,
   'getPaymentRecordsByUser' : ActorMethod<[string], Array<PaymentRecord>>,
+  'getPricing' : ActorMethod<[], Array<[string, bigint]>>,
   'getQuestions' : ActorMethod<[], Array<Question>>,
   'getSubscriptionByUser' : ActorMethod<[string], [] | [UserSubscription]>,
   'getSubscriptionSettings' : ActorMethod<[], SubscriptionSettings>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'healthCheck' : ActorMethod<[], string>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'recordAttempt' : ActorMethod<[bigint, bigint], boolean>,
   'rejectPayment' : ActorMethod<[string, string], boolean>,
@@ -88,6 +91,7 @@ export interface _SERVICE {
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'submitPaymentRecord' : ActorMethod<[PaymentRecord], boolean>,
   'updateLastLoginDevice' : ActorMethod<[string, string], boolean>,
+  'updatePricing' : ActorMethod<[string, bigint], boolean>,
   'updateSubscriptionSettings' : ActorMethod<[SubscriptionSettings], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;

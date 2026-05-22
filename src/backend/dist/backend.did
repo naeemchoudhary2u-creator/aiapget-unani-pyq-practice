@@ -1,0 +1,97 @@
+type UserSubscription = 
+ record {
+   deviceId: text;
+   expiryDate: text;
+   lastLoginDevice: text;
+   paymentRef: text;
+   planType: text;
+   startDate: text;
+   status: text;
+   userId: text;
+   userName: text;
+ };
+type UserRole = 
+ variant {
+   admin;
+   guest;
+   user;
+ };
+type UserProfile = 
+ record {
+   age: nat;
+   gender: text;
+   name: text;
+ };
+type SubscriptionSettings = 
+ record {
+   freeTrialDays: nat;
+   monthlyPrice: nat;
+   yearlyPrice: nat;
+ };
+type Question = 
+ record {
+   answerOptions: vec text;
+   correctAnswerIndex: nat;
+   explanation: opt text;
+   id: nat;
+   questionText: text;
+   topic: text;
+   year: text;
+ };
+type PaymentRecord = 
+ record {
+   amount: text;
+   approvedAt: opt text;
+   date: text;
+   deviceId: opt text;
+   id: text;
+   paymentMethod: text;
+   plan: text;
+   rejectedAt: opt text;
+   status: text;
+   userId: text;
+   userName: text;
+   utrId: text;
+ };
+service : {
+  _initializeAccessControl: () -> ();
+  activateSubscription: (sub: UserSubscription) -> (bool);
+  addQuestion: (newQuestion: Question) -> (bool);
+  approvePayment: (paymentId: text, approvedAt: text) -> (bool);
+  assignCallerUserRole: (user: principal, role: UserRole) -> ();
+  cancelSubscription: (userId: text) -> (bool);
+  getAdminQuestions: () -> (vec Question) query;
+  getAllSubscriptions: () -> (vec UserSubscription) query;
+  getByTopic: (topic: text) -> (vec Question) query;
+  getByYear: (year: text) -> (vec Question) query;
+  getCallerUserProfile: () -> (opt UserProfile) query;
+  getCallerUserRole: () -> (UserRole) query;
+  getDataCounts: () ->
+   (record {
+      payments: nat;
+      questions: nat;
+      subscriptions: nat;
+    }) query;
+  getPaymentRecords: () -> (vec PaymentRecord) query;
+  getPaymentRecordsByUser: (userId: text) -> (vec PaymentRecord) query;
+  getPricing: () -> (vec record {
+                           text;
+                           nat;
+                         }) query;
+  getQuestions: () -> (vec Question) query;
+  getSubscriptionByUser: (userId: text) -> (opt UserSubscription) query;
+  getSubscriptionSettings: () -> (SubscriptionSettings) query;
+  getUserProfile: (user: principal) -> (opt UserProfile) query;
+  healthCheck: () -> (text) query;
+  isCallerAdmin: () -> (bool) query;
+  recordAttempt: (questionId: nat, answerIndex: nat) -> (bool);
+  rejectPayment: (paymentId: text, rejectedAt: text) -> (bool);
+  removeQuestion: (id: nat) -> (bool);
+  resetDeviceBinding: (paymentId: text) -> (bool);
+  resetSubscriptionDevice: (userId: text) -> (bool);
+  saveCallerUserProfile: (profile: UserProfile) -> ();
+  submitPaymentRecord: ("record": PaymentRecord) -> (bool);
+  updateLastLoginDevice: (userId: text, deviceId: text) -> (bool);
+  updatePricing: (planType: text, price: nat) -> (bool);
+  updateSubscriptionSettings: (newSettings: SubscriptionSettings) -> ();
+}

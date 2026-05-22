@@ -1,6 +1,5 @@
 import {
   Clock,
-  CreditCard,
   Home,
   Info,
   List,
@@ -41,7 +40,7 @@ const menuItems: {
   },
   {
     icon: <List className="w-4 h-4" />,
-    label: "Browse by Topic",
+    label: "Browse by Subject",
     screen: { name: "topics" },
   },
   {
@@ -55,15 +54,9 @@ const menuItems: {
     screen: { name: "history" },
   },
   {
-    icon: <CreditCard className="w-4 h-4" />,
-    label: "Subscription Plans",
-    screen: { name: "subscription" },
-    badge: "New",
-  },
-  {
     icon: <ShieldCheck className="w-4 h-4" />,
-    label: "Admin Panel",
-    screen: { name: "admin" },
+    label: "Management",
+    screen: { name: "management" },
     badge: "Admin",
   },
   {

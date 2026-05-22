@@ -9,7 +9,7 @@ export interface None {
 export type Option<T> = Some<T> | None;
 export interface PaymentRecord {
     id: string;
-    status: PaymentStatus;
+    status: string;
     userName: string;
     paymentMethod: string;
     userId: string;
@@ -20,11 +20,6 @@ export interface PaymentRecord {
     deviceId?: string;
     utrId: string;
     amount: string;
-}
-export interface SubscriptionSettings {
-    yearlyPrice: bigint;
-    monthlyPrice: bigint;
-    freeTrialDays: bigint;
 }
 export interface UserSubscription {
     status: string;
@@ -51,10 +46,10 @@ export interface UserProfile {
     name: string;
     gender: string;
 }
-export enum PaymentStatus {
-    pending = "pending",
-    approved = "approved",
-    rejected = "rejected"
+export interface SubscriptionSettings {
+    yearlyPrice: bigint;
+    monthlyPrice: bigint;
+    freeTrialDays: bigint;
 }
 export enum UserRole {
     admin = "admin",
@@ -73,12 +68,19 @@ export interface backendInterface {
     getByYear(year: string): Promise<Array<Question>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
+    getDataCounts(): Promise<{
+        subscriptions: bigint;
+        payments: bigint;
+        questions: bigint;
+    }>;
     getPaymentRecords(): Promise<Array<PaymentRecord>>;
     getPaymentRecordsByUser(userId: string): Promise<Array<PaymentRecord>>;
+    getPricing(): Promise<Array<[string, bigint]>>;
     getQuestions(): Promise<Array<Question>>;
     getSubscriptionByUser(userId: string): Promise<UserSubscription | null>;
     getSubscriptionSettings(): Promise<SubscriptionSettings>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
+    healthCheck(): Promise<string>;
     isCallerAdmin(): Promise<boolean>;
     recordAttempt(questionId: bigint, answerIndex: bigint): Promise<boolean>;
     rejectPayment(paymentId: string, rejectedAt: string): Promise<boolean>;
@@ -88,5 +90,6 @@ export interface backendInterface {
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     submitPaymentRecord(record: PaymentRecord): Promise<boolean>;
     updateLastLoginDevice(userId: string, deviceId: string): Promise<boolean>;
+    updatePricing(planType: string, price: bigint): Promise<boolean>;
     updateSubscriptionSettings(newSettings: SubscriptionSettings): Promise<void>;
 }
