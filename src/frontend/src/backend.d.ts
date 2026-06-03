@@ -12,21 +12,30 @@ export interface PaymentRecord {
     status: string;
     userName: string;
     paymentMethod: string;
+    userEmail: string;
     userId: string;
     date: string;
     approvedAt?: string;
+    approvedBy: string;
     plan: string;
     rejectedAt?: string;
+    rejectedBy: string;
     deviceId?: string;
     utrId: string;
     amount: string;
+    planType: string;
 }
 export interface UserSubscription {
     status: string;
     userName: string;
+    userEmail: string;
     lastLoginDevice: string;
     expiryDate: string;
     userId: string;
+    approvedAt?: string;
+    approvedBy: string;
+    rejectedAt?: string;
+    rejectedBy: string;
     deviceId: string;
     paymentRef: string;
     planType: string;
@@ -58,9 +67,12 @@ export enum UserRole {
 }
 export interface backendInterface {
     activateSubscription(sub: UserSubscription): Promise<boolean>;
+    activateSubscriptionFromPayment(paymentId: string, startDate: string, expiryDate: string): Promise<boolean>;
     addQuestion(newQuestion: Question): Promise<boolean>;
     approvePayment(paymentId: string, approvedAt: string): Promise<boolean>;
+    approveSubscription(userId: string, approvedAt: string, expiryDate: string): Promise<boolean>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    calcExpiryDatePublic(planType: string, startTime: bigint): Promise<string>;
     cancelSubscription(userId: string): Promise<boolean>;
     getAdminQuestions(): Promise<Array<Question>>;
     getAllSubscriptions(): Promise<Array<UserSubscription>>;
@@ -84,6 +96,7 @@ export interface backendInterface {
     isCallerAdmin(): Promise<boolean>;
     recordAttempt(questionId: bigint, answerIndex: bigint): Promise<boolean>;
     rejectPayment(paymentId: string, rejectedAt: string): Promise<boolean>;
+    rejectSubscription(userId: string, rejectedAt: string): Promise<boolean>;
     removeQuestion(id: bigint): Promise<boolean>;
     resetDeviceBinding(paymentId: string): Promise<boolean>;
     resetSubscriptionDevice(userId: string): Promise<boolean>;

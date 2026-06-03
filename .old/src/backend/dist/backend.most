@@ -1,18 +1,18 @@
 // Version: 3.0.0
-type Data__791452850<K, V> =
-  {var count : Nat__490723111; kvs : [var ?(K, V)]};
-type Internal__8484328<K, V> =
-  {children : [var ?Node__46230540<K, V>]; data : Data__791452850<K, V>};
-type Leaf__809889148<K, V> = {data : Data__791452850<K, V>};
-type Map__158565046<K, V> = Map__297112838<K, V>;
-type Map__297112838<K, V> =
-  {var root : Node__46230540<K, V>; var size : Nat__490723111};
-type Map__605269027<K, V> = Map__158565046<K, V>;
-type Nat__490723111 = Nat__920180692;
+type Data__80296667<K, V> =
+  {var count : Nat__1040412405; kvs : [var ?(K, V)]};
+type Internal__41346355<K, V> =
+  {children : [var ?Node__1000929467<K, V>]; data : Data__80296667<K, V>};
+type Leaf__712614010<K, V> = {data : Data__80296667<K, V>};
+type Map__222667396<K, V> = Map__912772452<K, V>;
+type Map__709709801<K, V> =
+  {var root : Node__1000929467<K, V>; var size : Nat__1040412405};
+type Map__912772452<K, V> = Map__709709801<K, V>;
+type Nat__1040412405 = Nat__920180692;
 type Nat__920180692 = Nat;
-type Node__46230540<K, V> =
-  {#internal : Internal__8484328<K, V>; #leaf : Leaf__809889148<K, V>};
-type PaymentRecord__216844392 =
+type Node__1000929467<K, V> =
+  {#internal : Internal__41346355<K, V>; #leaf : Leaf__712614010<K, V>};
+type OldPaymentRecord__674492288 =
   {
     amount : Text;
     approvedAt : ?Text;
@@ -27,17 +27,33 @@ type PaymentRecord__216844392 =
     userName : Text;
     utrId : Text
   };
-type PaymentRecord__972883957 =
+type OldUserSubscription__1021112170 =
+  {
+    deviceId : Text;
+    expiryDate : Text;
+    lastLoginDevice : Text;
+    paymentRef : Text;
+    planType : Text;
+    startDate : Text;
+    status : Text;
+    userId : Text;
+    userName : Text
+  };
+type PaymentRecord__216844392 =
   {
     amount : Text;
     approvedAt : ?Text;
+    approvedBy : Text;
     date : Text;
     deviceId : ?Text;
     id : Text;
     paymentMethod : Text;
     plan : Text;
+    planType : Text;
     rejectedAt : ?Text;
+    rejectedBy : Text;
     status : Text;
+    userEmail : Text;
     userId : Text;
     userName : Text;
     utrId : Text
@@ -62,40 +78,22 @@ type Question__879138514 =
     topic : Text;
     year : Text
   };
-type UserLoginRecord__489128857 =
-  {
-    contactInfo : Text;
-    lastDeviceId : Text;
-    lastLoginTime : Int;
-    loginCount : Nat;
-    loginType : Text;
-    subscriptionStatus : Text;
-    userId : Text;
-    userName : Text
-  };
 type UserProfile__491224006 = {age : Nat; gender : Text; name : Text};
-type UserRole__1054455867 = {#admin; #guest; #user};
+type UserRole__1073662873 = {#admin; #guest; #user};
 type UserSubscription__165212294 =
   {
+    approvedAt : ?Text;
+    approvedBy : Text;
     deviceId : Text;
     expiryDate : Text;
     lastLoginDevice : Text;
     paymentRef : Text;
     planType : Text;
+    rejectedAt : ?Text;
+    rejectedBy : Text;
     startDate : Text;
     status : Text;
-    userId : Text;
-    userName : Text
-  };
-type UserSubscription__35430167 =
-  {
-    deviceId : Text;
-    expiryDate : Text;
-    lastLoginDevice : Text;
-    paymentRef : Text;
-    planType : Text;
-    startDate : Text;
-    status : Text;
+    userEmail : Text;
     userId : Text;
     userName : Text
   };
@@ -103,24 +101,23 @@ actor ({
   stable accessControlState :
     {
       var adminAssigned : Bool;
-      userRoles : Map__605269027<Principal, UserRole__1054455867>
+      userRoles : Map__222667396<Principal, UserRole__1073662873>
     };
-  in adminQuestions : [Question__201377195];
-  in loginRecords : [UserLoginRecord__489128857];
-  in paymentRecords : [PaymentRecord__972883957];
-  in subscriptionRecords : [UserSubscription__35430167];
+  in var adminQuestions : [Question__201377195];
+  in var paymentRecords : [OldPaymentRecord__674492288];
+  in var subscriptionRecords : [OldUserSubscription__1021112170];
   stable var subscriptionSettings :
     {freeTrialDays : Nat; monthlyPrice : Nat; yearlyPrice : Nat};
   stable userProfiles :
     {
-      var root : Node__46230540<Principal, UserProfile__491224006>;
-      var size : Nat__490723111
+      var root : Node__1000929467<Principal, UserProfile__491224006>;
+      var size : Nat__1040412405
     }
 }, {
   stable accessControlState :
     {
       var adminAssigned : Bool;
-      userRoles : Map__605269027<Principal, UserRole__1054455867>
+      userRoles : Map__222667396<Principal, UserRole__1073662873>
     };
   stable var adminQuestions : [Question__879138514];
   stable var paymentRecords : [PaymentRecord__216844392];
@@ -129,7 +126,7 @@ actor ({
     {freeTrialDays : Nat; monthlyPrice : Nat; yearlyPrice : Nat};
   stable userProfiles :
     {
-      var root : Node__46230540<Principal, UserProfile__491224006>;
-      var size : Nat__490723111
+      var root : Node__1000929467<Principal, UserProfile__491224006>;
+      var size : Nat__1040412405
     }
-}) ;
+});

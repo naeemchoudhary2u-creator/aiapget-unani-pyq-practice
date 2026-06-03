@@ -1,0 +1,22 @@
+{
+  "overview": "An MCQ practice app for AIAPGET Unani medicine exam with year-wise and subject-wise question browsing, quiz mode, and admin management for subscriptions and payments.",
+  "features": [
+    "Browse 2019-2025 AIAPGET Unani questions by year or subject",
+    "Quiz mode with 60-second timer per question",
+    "20 official AIAPGET Unani subjects with correct categorization",
+    "Admin Management page with Payments and Subscriptions tabs",
+    "Approve/Reject subscription requests with audit logs",
+    "Cross-device subscription sync via 10-second polling",
+    "Persistent subscription and payment data that survives app updates"
+  ],
+  "category": "education",
+  "tags": [
+    "medical",
+    "unani",
+    "mcq",
+    "exam-prep",
+    "aiapget",
+    "subscription"
+  ],
+  "last_updated": "2026-06-02T07:18:31.258Z"
+}

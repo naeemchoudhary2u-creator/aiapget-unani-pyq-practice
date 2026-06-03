@@ -10,7 +10,9 @@ import Migration "migration";
 
 
 
-(with migration = Migration.migrate)
+
+
+(with migration = Migration.run)
 actor {
   // ─── Type Definitions ────────────────────────────────────────────────────
 
@@ -42,14 +44,18 @@ actor {
     id : Text;
     date : Text;
     plan : Text;
+    planType : Text;
     amount : Text;
     utrId : Text;
     paymentMethod : Text;
     userId : Text;
     userName : Text;
+    userEmail : Text;
     deviceId : ?Text;
     status : Text;
+    approvedBy : Text;
     approvedAt : ?Text;
+    rejectedBy : Text;
     rejectedAt : ?Text;
   };
 
@@ -63,15 +69,20 @@ actor {
     paymentRef : Text;
     lastLoginDevice : Text;
     userName : Text;
+    userEmail : Text;
+    approvedBy : Text;
+    approvedAt : ?Text;
+    rejectedBy : Text;
+    rejectedAt : ?Text;
   };
 
 // ─── Core State — persists via enhanced orthogonal persistence ──────────────
 
-  stable var adminQuestions : [Question] = [];
+  var adminQuestions : [Question] = [];
 
-  // Persistent arrays — stable var ensures data survives canister upgrades.
-  stable var paymentRecords : [PaymentRecord] = [];
-  stable var subscriptionRecords : [UserSubscription] = [];
+  // Persistent arrays — enhanced orthogonal persistence keeps these across upgrades.
+  var paymentRecords : [PaymentRecord] = [];
+  var subscriptionRecords : [UserSubscription] = [];
 
   let accessControlState = AccessControl.initState();
   let userProfiles = Map.empty<Principal, UserProfile>();
@@ -209,12 +220,17 @@ actor {
   };
 
   public shared func submitPaymentRecord(record : PaymentRecord) : async Bool {
-    // Reject duplicate payment IDs
-    switch (paymentRecords.find(func(r : PaymentRecord) : Bool { r.id == record.id })) {
-      case (?_) { return false };
-      case null {};
+    // Upsert: if id already exists, replace it; otherwise append
+    switch (paymentRecords.findIndex(func(r : PaymentRecord) : Bool { r.id == record.id })) {
+      case (?i) {
+        paymentRecords := paymentRecords.mapEntries(func(r : PaymentRecord, idx : Nat) : PaymentRecord {
+          if (idx == i) { { record with status = "pending" } } else { r }
+        });
+      };
+      case null {
+        paymentRecords := paymentRecords.concat([{ record with status = "pending" }]);
+      };
     };
-    paymentRecords := paymentRecords.concat([record]);
     true;
   };
 
@@ -222,10 +238,10 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can approve payments");
     };
-    // Mark payment as approved
+    // Mark payment as approved with audit fields
     paymentRecords := paymentRecords.map(func(record : PaymentRecord) : PaymentRecord {
       if (record.id == paymentId) {
-        { record with status = "approved"; approvedAt = ?(approvedAt) }
+        { record with status = "approved"; approvedBy = "admin"; approvedAt = ?(approvedAt) }
       } else { record }
     });
     // Auto-create/update subscription on approval
@@ -236,16 +252,22 @@ actor {
           case (?d) { d };
           case null { "" };
         };
+        let planKey = if (payment.planType != "") { payment.planType } else { payment.plan };
         let newSub : UserSubscription = {
           userId = payment.userId;
-          planType = payment.plan;
+          planType = planKey;
           status = "active";
           deviceId;
           startDate = now.toText();
-          expiryDate = calcExpiryDate(payment.plan, now);
+          expiryDate = calcExpiryDate(planKey, now);
           paymentRef = payment.utrId;
           lastLoginDevice = deviceId;
           userName = payment.userName;
+          userEmail = payment.userEmail;
+          approvedBy = "admin";
+          approvedAt = ?(approvedAt);
+          rejectedBy = "";
+          rejectedAt = null;
         };
         // Upsert: replace existing entry or add new
         switch (subscriptionRecords.findIndex(func(s : UserSubscription) : Bool { s.userId == payment.userId })) {
@@ -262,15 +284,69 @@ actor {
     true;
   };
 
+  // Internal helper: activate subscription from a payment record
+  public shared ({ caller }) func activateSubscriptionFromPayment(paymentId : Text, startDate : Text, expiryDate : Text) : async Bool {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can activate subscriptions");
+    };
+    switch (paymentRecords.find(func(r : PaymentRecord) : Bool { r.id == paymentId })) {
+      case (?payment) {
+        let deviceId = switch (payment.deviceId) {
+          case (?d) { d };
+          case null { "" };
+        };
+        let planKey = if (payment.planType != "") { payment.planType } else { payment.plan };
+        let newSub : UserSubscription = {
+          userId = payment.userId;
+          planType = planKey;
+          status = "active";
+          deviceId;
+          startDate;
+          expiryDate;
+          paymentRef = payment.utrId;
+          lastLoginDevice = deviceId;
+          userName = payment.userName;
+          userEmail = payment.userEmail;
+          approvedBy = "admin";
+          approvedAt = ?(startDate);
+          rejectedBy = "";
+          rejectedAt = null;
+        };
+        switch (subscriptionRecords.findIndex(func(s : UserSubscription) : Bool { s.userId == payment.userId })) {
+          case (?i) {
+            subscriptionRecords := upsertSubscription(subscriptionRecords, i, newSub);
+          };
+          case null {
+            subscriptionRecords := subscriptionRecords.concat([newSub]);
+          };
+        };
+        true;
+      };
+      case null { false };
+    };
+  };
+
   public shared ({ caller }) func rejectPayment(paymentId : Text, rejectedAt : Text) : async Bool {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can reject payments");
     };
+    // Mark payment as rejected with audit fields
     paymentRecords := paymentRecords.map(func(record : PaymentRecord) : PaymentRecord {
       if (record.id == paymentId) {
-        { record with status = "rejected"; rejectedAt = ?(rejectedAt) }
+        { record with status = "rejected"; rejectedBy = "admin"; rejectedAt = ?(rejectedAt) }
       } else { record }
     });
+    // Also update matching subscription to rejected
+    switch (paymentRecords.find(func(r : PaymentRecord) : Bool { r.id == paymentId })) {
+      case (?payment) {
+        subscriptionRecords := subscriptionRecords.map(func(sub : UserSubscription) : UserSubscription {
+          if (sub.userId == payment.userId and sub.paymentRef == payment.utrId) {
+            { sub with status = "rejected"; rejectedBy = "admin"; rejectedAt = ?(rejectedAt) }
+          } else { sub }
+        });
+      };
+      case null {};
+    };
     true;
   };
 
@@ -316,6 +392,32 @@ actor {
     true;
   };
 
+  // Admin: approve a subscription directly (set active, expiry date, audit fields)
+  public shared ({ caller }) func approveSubscription(userId : Text, approvedAt : Text, expiryDate : Text) : async Bool {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can approve subscriptions");
+    };
+    subscriptionRecords := subscriptionRecords.map(func(sub : UserSubscription) : UserSubscription {
+      if (sub.userId == userId) {
+        { sub with status = "active"; approvedBy = "admin"; approvedAt = ?(approvedAt); expiryDate; rejectedBy = ""; rejectedAt = null }
+      } else { sub }
+    });
+    true;
+  };
+
+  // Admin: reject a subscription (set rejected, audit fields)
+  public shared ({ caller }) func rejectSubscription(userId : Text, rejectedAt : Text) : async Bool {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can reject subscriptions");
+    };
+    subscriptionRecords := subscriptionRecords.map(func(sub : UserSubscription) : UserSubscription {
+      if (sub.userId == userId) {
+        { sub with status = "rejected"; rejectedBy = "admin"; rejectedAt = ?(rejectedAt); approvedBy = ""; approvedAt = null }
+      } else { sub }
+    });
+    true;
+  };
+
   public query func getSubscriptionByUser(userId : Text) : async ?UserSubscription {
     subscriptionRecords.find(func(s : UserSubscription) : Bool { s.userId == userId });
   };
@@ -344,6 +446,12 @@ actor {
       if (sub.userId == userId) { { sub with status = "cancelled" } } else { sub }
     });
     true;
+  };
+
+  // ─── Expose calcExpiryDate publicly for frontend use ───────────────────────
+
+  public query func calcExpiryDatePublic(planType : Text, startTime : Int) : async Text {
+    calcExpiryDate(planType, startTime);
   };
 
   // ─── Health Check ─────────────────────────────────────────────────────────

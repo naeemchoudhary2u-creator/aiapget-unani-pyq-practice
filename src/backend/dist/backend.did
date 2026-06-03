@@ -1,12 +1,17 @@
 type UserSubscription = 
  record {
+   approvedAt: opt text;
+   approvedBy: text;
    deviceId: text;
    expiryDate: text;
    lastLoginDevice: text;
    paymentRef: text;
    planType: text;
+   rejectedAt: opt text;
+   rejectedBy: text;
    startDate: text;
    status: text;
+   userEmail: text;
    userId: text;
    userName: text;
  };
@@ -42,13 +47,17 @@ type PaymentRecord =
  record {
    amount: text;
    approvedAt: opt text;
+   approvedBy: text;
    date: text;
    deviceId: opt text;
    id: text;
    paymentMethod: text;
    plan: text;
+   planType: text;
    rejectedAt: opt text;
+   rejectedBy: text;
    status: text;
+   userEmail: text;
    userId: text;
    userName: text;
    utrId: text;
@@ -56,9 +65,14 @@ type PaymentRecord =
 service : {
   _initializeAccessControl: () -> ();
   activateSubscription: (sub: UserSubscription) -> (bool);
+  activateSubscriptionFromPayment: (paymentId: text, startDate: text,
+   expiryDate: text) -> (bool);
   addQuestion: (newQuestion: Question) -> (bool);
   approvePayment: (paymentId: text, approvedAt: text) -> (bool);
+  approveSubscription: (userId: text, approvedAt: text, expiryDate: text) ->
+   (bool);
   assignCallerUserRole: (user: principal, role: UserRole) -> ();
+  calcExpiryDatePublic: (planType: text, startTime: int) -> (text) query;
   cancelSubscription: (userId: text) -> (bool);
   getAdminQuestions: () -> (vec Question) query;
   getAllSubscriptions: () -> (vec UserSubscription) query;
@@ -86,6 +100,7 @@ service : {
   isCallerAdmin: () -> (bool) query;
   recordAttempt: (questionId: nat, answerIndex: nat) -> (bool);
   rejectPayment: (paymentId: text, rejectedAt: text) -> (bool);
+  rejectSubscription: (userId: text, rejectedAt: text) -> (bool);
   removeQuestion: (id: nat) -> (bool);
   resetDeviceBinding: (paymentId: text) -> (bool);
   resetSubscriptionDevice: (userId: text) -> (bool);

@@ -13787,10 +13787,10 @@ react_production.version = "19.1.5";
   react.exports = react_production;
 }
 var reactExports = react.exports;
-const index$1 = /* @__PURE__ */ getDefaultExportFromCjs(reactExports);
-const React$2 = /* @__PURE__ */ _mergeNamespaces({
+const React$2 = /* @__PURE__ */ getDefaultExportFromCjs(reactExports);
+const React$3 = /* @__PURE__ */ _mergeNamespaces({
   __proto__: null,
-  default: index$1
+  default: React$2
 }, [reactExports]);
 var QueryClientContext = reactExports.createContext(
   void 0
@@ -27026,29 +27026,29 @@ const createLucideIcon = (iconName, iconNode) => {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$B = [
+const __iconNode$F = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$B);
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$F);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$A = [
+const __iconNode$E = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$A);
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$E);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$z = [
+const __iconNode$D = [
   ["path", { d: "M12 7v14", key: "1akyts" }],
   [
     "path",
@@ -27058,14 +27058,14 @@ const __iconNode$z = [
     }
   ]
 ];
-const BookOpen = createLucideIcon("book-open", __iconNode$z);
+const BookOpen = createLucideIcon("book-open", __iconNode$D);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$y = [
+const __iconNode$C = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
@@ -27077,64 +27077,120 @@ const __iconNode$y = [
   ["path", { d: "M12 18h.01", key: "mhygvu" }],
   ["path", { d: "M16 18h.01", key: "kzsmim" }]
 ];
-const CalendarDays = createLucideIcon("calendar-days", __iconNode$y);
+const CalendarDays = createLucideIcon("calendar-days", __iconNode$C);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$x = [
+const __iconNode$B = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const Calendar = createLucideIcon("calendar", __iconNode$x);
+const Calendar = createLucideIcon("calendar", __iconNode$B);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$w = [
+const __iconNode$A = [
   ["line", { x1: "18", x2: "18", y1: "20", y2: "10", key: "1xfpm4" }],
   ["line", { x1: "12", x2: "12", y1: "20", y2: "4", key: "be30l9" }],
   ["line", { x1: "6", x2: "6", y1: "20", y2: "14", key: "1r4le6" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$w);
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$A);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$v = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$v);
+const __iconNode$z = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$z);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$u = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$u);
+const __iconNode$y = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$y);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$t = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$t);
+const __iconNode$x = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$x);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$s = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$s);
+const __iconNode$w = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$w);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$v = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
+  ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
+];
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$v);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$u = [
+  ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
+  ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
+];
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$u);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$t = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
+  ["path", { d: "m9 9 6 6", key: "z0biqf" }]
+];
+const CircleX = createLucideIcon("circle-x", __iconNode$t);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$s = [
+  ["rect", { width: "8", height: "4", x: "8", y: "2", rx: "1", ry: "1", key: "tgr4d6" }],
+  [
+    "path",
+    {
+      d: "M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2",
+      key: "116196"
+    }
+  ],
+  ["path", { d: "M12 11h4", key: "1jrz19" }],
+  ["path", { d: "M12 16h4", key: "n85exb" }],
+  ["path", { d: "M8 11h.01", key: "1dfujw" }],
+  ["path", { d: "M8 16h.01", key: "18s6g9" }]
+];
+const ClipboardList = createLucideIcon("clipboard-list", __iconNode$s);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -27143,10 +27199,9 @@ const ChevronUp = createLucideIcon("chevron-up", __iconNode$s);
  */
 const __iconNode$r = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
-  ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
+  ["polyline", { points: "12 6 12 12 16 14", key: "68esgv" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$r);
+const Clock = createLucideIcon("clock", __iconNode$r);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -27154,10 +27209,10 @@ const CircleAlert = createLucideIcon("circle-alert", __iconNode$r);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$q = [
-  ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
-  ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
+  ["rect", { width: "20", height: "14", x: "2", y: "5", rx: "2", key: "ynyp8z" }],
+  ["line", { x1: "2", x2: "22", y1: "10", y2: "10", key: "1b3vmo" }]
 ];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$q);
+const CreditCard = createLucideIcon("credit-card", __iconNode$q);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -27165,11 +27220,11 @@ const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$q);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$p = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
-  ["path", { d: "m9 9 6 6", key: "z0biqf" }]
+  ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
+  ["circle", { cx: "12", cy: "5", r: "1", key: "gxeob9" }],
+  ["circle", { cx: "12", cy: "19", r: "1", key: "lyex9k" }]
 ];
-const CircleX = createLucideIcon("circle-x", __iconNode$p);
+const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$p);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -27177,29 +27232,6 @@ const CircleX = createLucideIcon("circle-x", __iconNode$p);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$o = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["polyline", { points: "12 6 12 12 16 14", key: "68esgv" }]
-];
-const Clock = createLucideIcon("clock", __iconNode$o);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$n = [
-  ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
-  ["circle", { cx: "12", cy: "5", r: "1", key: "gxeob9" }],
-  ["circle", { cx: "12", cy: "19", r: "1", key: "lyex9k" }]
-];
-const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$n);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$m = [
   [
     "path",
     {
@@ -27209,14 +27241,14 @@ const __iconNode$m = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Eye = createLucideIcon("eye", __iconNode$m);
+const Eye = createLucideIcon("eye", __iconNode$o);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$l = [
+const __iconNode$n = [
   ["path", { d: "M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8", key: "5wwlr5" }],
   [
     "path",
@@ -27226,26 +27258,26 @@ const __iconNode$l = [
     }
   ]
 ];
-const House = createLucideIcon("house", __iconNode$l);
+const House = createLucideIcon("house", __iconNode$n);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$k = [
+const __iconNode$m = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
 ];
-const Info = createLucideIcon("info", __iconNode$k);
+const Info = createLucideIcon("info", __iconNode$m);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$j = [
+const __iconNode$l = [
   ["path", { d: "M3 12h.01", key: "nlz23k" }],
   ["path", { d: "M3 18h.01", key: "1tta3j" }],
   ["path", { d: "M3 6h.01", key: "1rqtza" }],
@@ -27253,15 +27285,38 @@ const __iconNode$j = [
   ["path", { d: "M8 18h13", key: "1lx6n3" }],
   ["path", { d: "M8 6h13", key: "ik3vkj" }]
 ];
-const List = createLucideIcon("list", __iconNode$j);
+const List = createLucideIcon("list", __iconNode$l);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$i = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
-const LoaderCircle = createLucideIcon("loader-circle", __iconNode$i);
+const __iconNode$k = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
+const LoaderCircle = createLucideIcon("loader-circle", __iconNode$k);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$j = [
+  ["rect", { width: "18", height: "11", x: "3", y: "11", rx: "2", ry: "2", key: "1w4ew1" }],
+  ["path", { d: "M7 11V7a5 5 0 0 1 10 0v4", key: "fwvmzm" }]
+];
+const Lock = createLucideIcon("lock", __iconNode$j);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$i = [
+  ["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }],
+  ["path", { d: "M21 12H9", key: "dn1m92" }],
+  ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]
+];
+const LogOut = createLucideIcon("log-out", __iconNode$i);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -27269,10 +27324,10 @@ const LoaderCircle = createLucideIcon("loader-circle", __iconNode$i);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$h = [
-  ["rect", { width: "18", height: "11", x: "3", y: "11", rx: "2", ry: "2", key: "1w4ew1" }],
-  ["path", { d: "M7 11V7a5 5 0 0 1 10 0v4", key: "fwvmzm" }]
+  ["path", { d: "m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7", key: "132q7q" }],
+  ["rect", { x: "2", y: "4", width: "20", height: "16", rx: "2", key: "izxlao" }]
 ];
-const Lock = createLucideIcon("lock", __iconNode$h);
+const Mail = createLucideIcon("mail", __iconNode$h);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -27280,22 +27335,17 @@ const Lock = createLucideIcon("lock", __iconNode$h);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$g = [
-  ["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }],
-  ["path", { d: "M21 12H9", key: "dn1m92" }],
-  ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]
+  ["path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z", key: "1lielz" }]
 ];
-const LogOut = createLucideIcon("log-out", __iconNode$g);
+const MessageSquare = createLucideIcon("message-square", __iconNode$g);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$f = [
-  ["path", { d: "m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7", key: "132q7q" }],
-  ["rect", { x: "2", y: "4", width: "20", height: "16", rx: "2", key: "izxlao" }]
-];
-const Mail = createLucideIcon("mail", __iconNode$f);
+const __iconNode$f = [["path", { d: "M5 12h14", key: "1ays0h" }]];
+const Minus = createLucideIcon("minus", __iconNode$f);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -27303,24 +27353,6 @@ const Mail = createLucideIcon("mail", __iconNode$f);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$e = [
-  ["path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z", key: "1lielz" }]
-];
-const MessageSquare = createLucideIcon("message-square", __iconNode$e);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$d = [["path", { d: "M5 12h14", key: "1ays0h" }]];
-const Minus = createLucideIcon("minus", __iconNode$d);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$c = [
   [
     "path",
     {
@@ -27329,15 +27361,39 @@ const __iconNode$c = [
     }
   ]
 ];
-const Phone = createLucideIcon("phone", __iconNode$c);
+const Phone = createLucideIcon("phone", __iconNode$e);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$b = [["polygon", { points: "6 3 20 12 6 21 6 3", key: "1oa8hb" }]];
-const Play = createLucideIcon("play", __iconNode$b);
+const __iconNode$d = [["polygon", { points: "6 3 20 12 6 21 6 3", key: "1oa8hb" }]];
+const Play = createLucideIcon("play", __iconNode$d);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$c = [
+  ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
+  ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
+  ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
+  ["path", { d: "M8 16H3v5", key: "1cv678" }]
+];
+const RefreshCw = createLucideIcon("refresh-cw", __iconNode$c);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$b = [
+  ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
+  ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
+];
+const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$b);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -27345,10 +27401,16 @@ const Play = createLucideIcon("play", __iconNode$b);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$a = [
-  ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
-  ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
+  [
+    "path",
+    {
+      d: "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z",
+      key: "oel41y"
+    }
+  ],
+  ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$a);
+const ShieldCheck = createLucideIcon("shield-check", __iconNode$a);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -27362,10 +27424,9 @@ const __iconNode$9 = [
       d: "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z",
       key: "oel41y"
     }
-  ],
-  ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
+  ]
 ];
-const ShieldCheck = createLucideIcon("shield-check", __iconNode$9);
+const Shield = createLucideIcon("shield", __iconNode$9);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -27373,15 +27434,10 @@ const ShieldCheck = createLucideIcon("shield-check", __iconNode$9);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$8 = [
-  [
-    "path",
-    {
-      d: "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z",
-      key: "oel41y"
-    }
-  ]
+  ["polygon", { points: "5 4 15 12 5 20 5 4", key: "16p6eg" }],
+  ["line", { x1: "19", x2: "19", y1: "5", y2: "19", key: "futhcm" }]
 ];
-const Shield = createLucideIcon("shield", __iconNode$8);
+const SkipForward = createLucideIcon("skip-forward", __iconNode$8);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -27389,10 +27445,10 @@ const Shield = createLucideIcon("shield", __iconNode$8);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$7 = [
-  ["polygon", { points: "5 4 15 12 5 20 5 4", key: "16p6eg" }],
-  ["line", { x1: "19", x2: "19", y1: "5", y2: "19", key: "futhcm" }]
+  ["rect", { width: "14", height: "20", x: "5", y: "2", rx: "2", ry: "2", key: "1yt0o3" }],
+  ["path", { d: "M12 18h.01", key: "mhygvu" }]
 ];
-const SkipForward = createLucideIcon("skip-forward", __iconNode$7);
+const Smartphone = createLucideIcon("smartphone", __iconNode$7);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -27400,17 +27456,6 @@ const SkipForward = createLucideIcon("skip-forward", __iconNode$7);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$6 = [
-  ["rect", { width: "14", height: "20", x: "5", y: "2", rx: "2", ry: "2", key: "1yt0o3" }],
-  ["path", { d: "M12 18h.01", key: "mhygvu" }]
-];
-const Smartphone = createLucideIcon("smartphone", __iconNode$6);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$5 = [
   [
     "path",
     {
@@ -27423,7 +27468,21 @@ const __iconNode$5 = [
   ["path", { d: "M4 17v2", key: "vumght" }],
   ["path", { d: "M5 18H3", key: "zchphs" }]
 ];
-const Sparkles = createLucideIcon("sparkles", __iconNode$5);
+const Sparkles = createLucideIcon("sparkles", __iconNode$6);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$5 = [
+  ["path", { d: "M3 6h18", key: "d0wm0j" }],
+  ["path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6", key: "4alrt4" }],
+  ["path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2", key: "v07s0e" }],
+  ["line", { x1: "10", x2: "10", y1: "11", y2: "17", key: "1uufr5" }],
+  ["line", { x1: "14", x2: "14", y1: "11", y2: "17", key: "xtxkd" }]
+];
+const Trash2 = createLucideIcon("trash-2", __iconNode$5);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -27431,20 +27490,6 @@ const Sparkles = createLucideIcon("sparkles", __iconNode$5);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$4 = [
-  ["path", { d: "M3 6h18", key: "d0wm0j" }],
-  ["path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6", key: "4alrt4" }],
-  ["path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2", key: "v07s0e" }],
-  ["line", { x1: "10", x2: "10", y1: "11", y2: "17", key: "1uufr5" }],
-  ["line", { x1: "14", x2: "14", y1: "11", y2: "17", key: "xtxkd" }]
-];
-const Trash2 = createLucideIcon("trash-2", __iconNode$4);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$3 = [
   ["path", { d: "M6 9H4.5a2.5 2.5 0 0 1 0-5H6", key: "17hqa7" }],
   ["path", { d: "M18 9h1.5a2.5 2.5 0 0 0 0-5H18", key: "lmptdp" }],
   ["path", { d: "M4 22h16", key: "57wxv0" }],
@@ -27452,7 +27497,19 @@ const __iconNode$3 = [
   ["path", { d: "M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22", key: "1np0yb" }],
   ["path", { d: "M18 2H6v7a6 6 0 0 0 12 0V2Z", key: "u46fv3" }]
 ];
-const Trophy = createLucideIcon("trophy", __iconNode$3);
+const Trophy = createLucideIcon("trophy", __iconNode$4);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$3 = [
+  ["path", { d: "m16 11 2 2 4-4", key: "9rsbq5" }],
+  ["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }],
+  ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]
+];
+const UserCheck = createLucideIcon("user-check", __iconNode$3);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -28031,7 +28088,7 @@ function composeRefs(...refs) {
   };
 }
 var REACT_LAZY_TYPE = Symbol.for("react.lazy");
-var use = React$2[" use ".trim().toString()];
+var use = React$3[" use ".trim().toString()];
 function isPromiseLike(value) {
   return typeof value === "object" && value !== null && "then" in value;
 }
@@ -41344,9 +41401,14 @@ const questions = [
 const UserSubscription = Record({
   "status": Text,
   "userName": Text,
+  "userEmail": Text,
   "lastLoginDevice": Text,
   "expiryDate": Text,
   "userId": Text,
+  "approvedAt": Opt(Text),
+  "approvedBy": Text,
+  "rejectedAt": Opt(Text),
+  "rejectedBy": Text,
   "deviceId": Text,
   "paymentRef": Text,
   "planType": Text,
@@ -41376,14 +41438,18 @@ const PaymentRecord = Record({
   "status": Text,
   "userName": Text,
   "paymentMethod": Text,
+  "userEmail": Text,
   "userId": Text,
   "date": Text,
   "approvedAt": Opt(Text),
+  "approvedBy": Text,
   "plan": Text,
   "rejectedAt": Opt(Text),
+  "rejectedBy": Text,
   "deviceId": Opt(Text),
   "utrId": Text,
-  "amount": Text
+  "amount": Text,
+  "planType": Text
 });
 const SubscriptionSettings = Record({
   "yearlyPrice": Nat,
@@ -41393,9 +41459,20 @@ const SubscriptionSettings = Record({
 Service({
   "_initializeAccessControl": Func([], [], []),
   "activateSubscription": Func([UserSubscription], [Bool], []),
+  "activateSubscriptionFromPayment": Func(
+    [Text, Text, Text],
+    [Bool],
+    []
+  ),
   "addQuestion": Func([Question], [Bool], []),
   "approvePayment": Func([Text, Text], [Bool], []),
+  "approveSubscription": Func(
+    [Text, Text, Text],
+    [Bool],
+    []
+  ),
   "assignCallerUserRole": Func([Principal2, UserRole], [], []),
+  "calcExpiryDatePublic": Func([Text, Int], [Text], ["query"]),
   "cancelSubscription": Func([Text], [Bool], []),
   "getAdminQuestions": Func([], [Vec(Question)], ["query"]),
   "getAllSubscriptions": Func([], [Vec(UserSubscription)], ["query"]),
@@ -41441,6 +41518,7 @@ Service({
   "isCallerAdmin": Func([], [Bool], ["query"]),
   "recordAttempt": Func([Nat, Nat], [Bool], []),
   "rejectPayment": Func([Text, Text], [Bool], []),
+  "rejectSubscription": Func([Text, Text], [Bool], []),
   "removeQuestion": Func([Nat], [Bool], []),
   "resetDeviceBinding": Func([Text], [Bool], []),
   "resetSubscriptionDevice": Func([Text], [Bool], []),
@@ -41454,9 +41532,14 @@ const idlFactory = ({ IDL: IDL2 }) => {
   const UserSubscription2 = IDL2.Record({
     "status": IDL2.Text,
     "userName": IDL2.Text,
+    "userEmail": IDL2.Text,
     "lastLoginDevice": IDL2.Text,
     "expiryDate": IDL2.Text,
     "userId": IDL2.Text,
+    "approvedAt": IDL2.Opt(IDL2.Text),
+    "approvedBy": IDL2.Text,
+    "rejectedAt": IDL2.Opt(IDL2.Text),
+    "rejectedBy": IDL2.Text,
     "deviceId": IDL2.Text,
     "paymentRef": IDL2.Text,
     "planType": IDL2.Text,
@@ -41486,14 +41569,18 @@ const idlFactory = ({ IDL: IDL2 }) => {
     "status": IDL2.Text,
     "userName": IDL2.Text,
     "paymentMethod": IDL2.Text,
+    "userEmail": IDL2.Text,
     "userId": IDL2.Text,
     "date": IDL2.Text,
     "approvedAt": IDL2.Opt(IDL2.Text),
+    "approvedBy": IDL2.Text,
     "plan": IDL2.Text,
     "rejectedAt": IDL2.Opt(IDL2.Text),
+    "rejectedBy": IDL2.Text,
     "deviceId": IDL2.Opt(IDL2.Text),
     "utrId": IDL2.Text,
-    "amount": IDL2.Text
+    "amount": IDL2.Text,
+    "planType": IDL2.Text
   });
   const SubscriptionSettings2 = IDL2.Record({
     "yearlyPrice": IDL2.Nat,
@@ -41503,9 +41590,24 @@ const idlFactory = ({ IDL: IDL2 }) => {
   return IDL2.Service({
     "_initializeAccessControl": IDL2.Func([], [], []),
     "activateSubscription": IDL2.Func([UserSubscription2], [IDL2.Bool], []),
+    "activateSubscriptionFromPayment": IDL2.Func(
+      [IDL2.Text, IDL2.Text, IDL2.Text],
+      [IDL2.Bool],
+      []
+    ),
     "addQuestion": IDL2.Func([Question2], [IDL2.Bool], []),
     "approvePayment": IDL2.Func([IDL2.Text, IDL2.Text], [IDL2.Bool], []),
+    "approveSubscription": IDL2.Func(
+      [IDL2.Text, IDL2.Text, IDL2.Text],
+      [IDL2.Bool],
+      []
+    ),
     "assignCallerUserRole": IDL2.Func([IDL2.Principal, UserRole2], [], []),
+    "calcExpiryDatePublic": IDL2.Func(
+      [IDL2.Text, IDL2.Int],
+      [IDL2.Text],
+      ["query"]
+    ),
     "cancelSubscription": IDL2.Func([IDL2.Text], [IDL2.Bool], []),
     "getAdminQuestions": IDL2.Func([], [IDL2.Vec(Question2)], ["query"]),
     "getAllSubscriptions": IDL2.Func(
@@ -41555,6 +41657,7 @@ const idlFactory = ({ IDL: IDL2 }) => {
     "isCallerAdmin": IDL2.Func([], [IDL2.Bool], ["query"]),
     "recordAttempt": IDL2.Func([IDL2.Nat, IDL2.Nat], [IDL2.Bool], []),
     "rejectPayment": IDL2.Func([IDL2.Text, IDL2.Text], [IDL2.Bool], []),
+    "rejectSubscription": IDL2.Func([IDL2.Text, IDL2.Text], [IDL2.Bool], []),
     "removeQuestion": IDL2.Func([IDL2.Nat], [IDL2.Bool], []),
     "resetDeviceBinding": IDL2.Func([IDL2.Text], [IDL2.Bool], []),
     "resetSubscriptionDevice": IDL2.Func([IDL2.Text], [IDL2.Bool], []),
@@ -41638,28 +41741,42 @@ class Backend {
   async activateSubscription(arg0) {
     if (this.processError) {
       try {
-        const result = await this.actor.activateSubscription(arg0);
+        const result = await this.actor.activateSubscription(to_candid_UserSubscription_n1(this._uploadFile, this._downloadFile, arg0));
         return result;
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
-      const result = await this.actor.activateSubscription(arg0);
+      const result = await this.actor.activateSubscription(to_candid_UserSubscription_n1(this._uploadFile, this._downloadFile, arg0));
+      return result;
+    }
+  }
+  async activateSubscriptionFromPayment(arg0, arg1, arg2) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.activateSubscriptionFromPayment(arg0, arg1, arg2);
+        return result;
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.activateSubscriptionFromPayment(arg0, arg1, arg2);
       return result;
     }
   }
   async addQuestion(arg0) {
     if (this.processError) {
       try {
-        const result = await this.actor.addQuestion(to_candid_Question_n1(this._uploadFile, this._downloadFile, arg0));
+        const result = await this.actor.addQuestion(to_candid_Question_n3(this._uploadFile, this._downloadFile, arg0));
         return result;
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
-      const result = await this.actor.addQuestion(to_candid_Question_n1(this._uploadFile, this._downloadFile, arg0));
+      const result = await this.actor.addQuestion(to_candid_Question_n3(this._uploadFile, this._downloadFile, arg0));
       return result;
     }
   }
@@ -41677,17 +41794,45 @@ class Backend {
       return result;
     }
   }
-  async assignCallerUserRole(arg0, arg1) {
+  async approveSubscription(arg0, arg1, arg2) {
     if (this.processError) {
       try {
-        const result = await this.actor.assignCallerUserRole(arg0, to_candid_UserRole_n3(this._uploadFile, this._downloadFile, arg1));
+        const result = await this.actor.approveSubscription(arg0, arg1, arg2);
         return result;
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
-      const result = await this.actor.assignCallerUserRole(arg0, to_candid_UserRole_n3(this._uploadFile, this._downloadFile, arg1));
+      const result = await this.actor.approveSubscription(arg0, arg1, arg2);
+      return result;
+    }
+  }
+  async assignCallerUserRole(arg0, arg1) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.assignCallerUserRole(arg0, to_candid_UserRole_n5(this._uploadFile, this._downloadFile, arg1));
+        return result;
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.assignCallerUserRole(arg0, to_candid_UserRole_n5(this._uploadFile, this._downloadFile, arg1));
+      return result;
+    }
+  }
+  async calcExpiryDatePublic(arg0, arg1) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.calcExpiryDatePublic(arg0, arg1);
+        return result;
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.calcExpiryDatePublic(arg0, arg1);
       return result;
     }
   }
@@ -41709,84 +41854,84 @@ class Backend {
     if (this.processError) {
       try {
         const result = await this.actor.getAdminQuestions();
-        return from_candid_vec_n5(this._uploadFile, this._downloadFile, result);
+        return from_candid_vec_n7(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getAdminQuestions();
-      return from_candid_vec_n5(this._uploadFile, this._downloadFile, result);
+      return from_candid_vec_n7(this._uploadFile, this._downloadFile, result);
     }
   }
   async getAllSubscriptions() {
     if (this.processError) {
       try {
         const result = await this.actor.getAllSubscriptions();
-        return result;
+        return from_candid_vec_n11(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getAllSubscriptions();
-      return result;
+      return from_candid_vec_n11(this._uploadFile, this._downloadFile, result);
     }
   }
   async getByTopic(arg0) {
     if (this.processError) {
       try {
         const result = await this.actor.getByTopic(arg0);
-        return from_candid_vec_n5(this._uploadFile, this._downloadFile, result);
+        return from_candid_vec_n7(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getByTopic(arg0);
-      return from_candid_vec_n5(this._uploadFile, this._downloadFile, result);
+      return from_candid_vec_n7(this._uploadFile, this._downloadFile, result);
     }
   }
   async getByYear(arg0) {
     if (this.processError) {
       try {
         const result = await this.actor.getByYear(arg0);
-        return from_candid_vec_n5(this._uploadFile, this._downloadFile, result);
+        return from_candid_vec_n7(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getByYear(arg0);
-      return from_candid_vec_n5(this._uploadFile, this._downloadFile, result);
+      return from_candid_vec_n7(this._uploadFile, this._downloadFile, result);
     }
   }
   async getCallerUserProfile() {
     if (this.processError) {
       try {
         const result = await this.actor.getCallerUserProfile();
-        return from_candid_opt_n9(this._uploadFile, this._downloadFile, result);
+        return from_candid_opt_n14(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getCallerUserProfile();
-      return from_candid_opt_n9(this._uploadFile, this._downloadFile, result);
+      return from_candid_opt_n14(this._uploadFile, this._downloadFile, result);
     }
   }
   async getCallerUserRole() {
     if (this.processError) {
       try {
         const result = await this.actor.getCallerUserRole();
-        return from_candid_UserRole_n10(this._uploadFile, this._downloadFile, result);
+        return from_candid_UserRole_n15(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getCallerUserRole();
-      return from_candid_UserRole_n10(this._uploadFile, this._downloadFile, result);
+      return from_candid_UserRole_n15(this._uploadFile, this._downloadFile, result);
     }
   }
   async getDataCounts() {
@@ -41807,28 +41952,28 @@ class Backend {
     if (this.processError) {
       try {
         const result = await this.actor.getPaymentRecords();
-        return from_candid_vec_n12(this._uploadFile, this._downloadFile, result);
+        return from_candid_vec_n17(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getPaymentRecords();
-      return from_candid_vec_n12(this._uploadFile, this._downloadFile, result);
+      return from_candid_vec_n17(this._uploadFile, this._downloadFile, result);
     }
   }
   async getPaymentRecordsByUser(arg0) {
     if (this.processError) {
       try {
         const result = await this.actor.getPaymentRecordsByUser(arg0);
-        return from_candid_vec_n12(this._uploadFile, this._downloadFile, result);
+        return from_candid_vec_n17(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getPaymentRecordsByUser(arg0);
-      return from_candid_vec_n12(this._uploadFile, this._downloadFile, result);
+      return from_candid_vec_n17(this._uploadFile, this._downloadFile, result);
     }
   }
   async getPricing() {
@@ -41849,28 +41994,28 @@ class Backend {
     if (this.processError) {
       try {
         const result = await this.actor.getQuestions();
-        return from_candid_vec_n5(this._uploadFile, this._downloadFile, result);
+        return from_candid_vec_n7(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getQuestions();
-      return from_candid_vec_n5(this._uploadFile, this._downloadFile, result);
+      return from_candid_vec_n7(this._uploadFile, this._downloadFile, result);
     }
   }
   async getSubscriptionByUser(arg0) {
     if (this.processError) {
       try {
         const result = await this.actor.getSubscriptionByUser(arg0);
-        return from_candid_opt_n15(this._uploadFile, this._downloadFile, result);
+        return from_candid_opt_n20(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getSubscriptionByUser(arg0);
-      return from_candid_opt_n15(this._uploadFile, this._downloadFile, result);
+      return from_candid_opt_n20(this._uploadFile, this._downloadFile, result);
     }
   }
   async getSubscriptionSettings() {
@@ -41891,14 +42036,14 @@ class Backend {
     if (this.processError) {
       try {
         const result = await this.actor.getUserProfile(arg0);
-        return from_candid_opt_n9(this._uploadFile, this._downloadFile, result);
+        return from_candid_opt_n14(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getUserProfile(arg0);
-      return from_candid_opt_n9(this._uploadFile, this._downloadFile, result);
+      return from_candid_opt_n14(this._uploadFile, this._downloadFile, result);
     }
   }
   async healthCheck() {
@@ -41954,6 +42099,20 @@ class Backend {
       }
     } else {
       const result = await this.actor.rejectPayment(arg0, arg1);
+      return result;
+    }
+  }
+  async rejectSubscription(arg0, arg1) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.rejectSubscription(arg0, arg1);
+        return result;
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.rejectSubscription(arg0, arg1);
       return result;
     }
   }
@@ -42016,14 +42175,14 @@ class Backend {
   async submitPaymentRecord(arg0) {
     if (this.processError) {
       try {
-        const result = await this.actor.submitPaymentRecord(to_candid_PaymentRecord_n16(this._uploadFile, this._downloadFile, arg0));
+        const result = await this.actor.submitPaymentRecord(to_candid_PaymentRecord_n21(this._uploadFile, this._downloadFile, arg0));
         return result;
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
-      const result = await this.actor.submitPaymentRecord(to_candid_PaymentRecord_n16(this._uploadFile, this._downloadFile, arg0));
+      const result = await this.actor.submitPaymentRecord(to_candid_PaymentRecord_n21(this._uploadFile, this._downloadFile, arg0));
       return result;
     }
   }
@@ -42070,86 +42229,139 @@ class Backend {
     }
   }
 }
-function from_candid_PaymentRecord_n13(_uploadFile, _downloadFile, value) {
-  return from_candid_record_n14(_uploadFile, _downloadFile, value);
+function from_candid_PaymentRecord_n18(_uploadFile, _downloadFile, value) {
+  return from_candid_record_n19(_uploadFile, _downloadFile, value);
 }
-function from_candid_Question_n6(_uploadFile, _downloadFile, value) {
-  return from_candid_record_n7(_uploadFile, _downloadFile, value);
+function from_candid_Question_n8(_uploadFile, _downloadFile, value) {
+  return from_candid_record_n9(_uploadFile, _downloadFile, value);
 }
-function from_candid_UserRole_n10(_uploadFile, _downloadFile, value) {
-  return from_candid_variant_n11(_uploadFile, _downloadFile, value);
+function from_candid_UserRole_n15(_uploadFile, _downloadFile, value) {
+  return from_candid_variant_n16(_uploadFile, _downloadFile, value);
 }
-function from_candid_opt_n15(_uploadFile, _downloadFile, value) {
+function from_candid_UserSubscription_n12(_uploadFile, _downloadFile, value) {
+  return from_candid_record_n13(_uploadFile, _downloadFile, value);
+}
+function from_candid_opt_n10(_uploadFile, _downloadFile, value) {
   return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n8(_uploadFile, _downloadFile, value) {
+function from_candid_opt_n14(_uploadFile, _downloadFile, value) {
   return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n9(_uploadFile, _downloadFile, value) {
-  return value.length === 0 ? null : value[0];
+function from_candid_opt_n20(_uploadFile, _downloadFile, value) {
+  return value.length === 0 ? null : from_candid_UserSubscription_n12(_uploadFile, _downloadFile, value[0]);
 }
-function from_candid_record_n14(_uploadFile, _downloadFile, value) {
+function from_candid_record_n13(_uploadFile, _downloadFile, value) {
+  return {
+    status: value.status,
+    userName: value.userName,
+    userEmail: value.userEmail,
+    lastLoginDevice: value.lastLoginDevice,
+    expiryDate: value.expiryDate,
+    userId: value.userId,
+    approvedAt: record_opt_to_undefined(from_candid_opt_n10(_uploadFile, _downloadFile, value.approvedAt)),
+    approvedBy: value.approvedBy,
+    rejectedAt: record_opt_to_undefined(from_candid_opt_n10(_uploadFile, _downloadFile, value.rejectedAt)),
+    rejectedBy: value.rejectedBy,
+    deviceId: value.deviceId,
+    paymentRef: value.paymentRef,
+    planType: value.planType,
+    startDate: value.startDate
+  };
+}
+function from_candid_record_n19(_uploadFile, _downloadFile, value) {
   return {
     id: value.id,
     status: value.status,
     userName: value.userName,
     paymentMethod: value.paymentMethod,
+    userEmail: value.userEmail,
     userId: value.userId,
     date: value.date,
-    approvedAt: record_opt_to_undefined(from_candid_opt_n8(_uploadFile, _downloadFile, value.approvedAt)),
+    approvedAt: record_opt_to_undefined(from_candid_opt_n10(_uploadFile, _downloadFile, value.approvedAt)),
+    approvedBy: value.approvedBy,
     plan: value.plan,
-    rejectedAt: record_opt_to_undefined(from_candid_opt_n8(_uploadFile, _downloadFile, value.rejectedAt)),
-    deviceId: record_opt_to_undefined(from_candid_opt_n8(_uploadFile, _downloadFile, value.deviceId)),
+    rejectedAt: record_opt_to_undefined(from_candid_opt_n10(_uploadFile, _downloadFile, value.rejectedAt)),
+    rejectedBy: value.rejectedBy,
+    deviceId: record_opt_to_undefined(from_candid_opt_n10(_uploadFile, _downloadFile, value.deviceId)),
     utrId: value.utrId,
-    amount: value.amount
+    amount: value.amount,
+    planType: value.planType
   };
 }
-function from_candid_record_n7(_uploadFile, _downloadFile, value) {
+function from_candid_record_n9(_uploadFile, _downloadFile, value) {
   return {
     id: value.id,
     topic: value.topic,
-    explanation: record_opt_to_undefined(from_candid_opt_n8(_uploadFile, _downloadFile, value.explanation)),
+    explanation: record_opt_to_undefined(from_candid_opt_n10(_uploadFile, _downloadFile, value.explanation)),
     year: value.year,
     answerOptions: value.answerOptions,
     questionText: value.questionText,
     correctAnswerIndex: value.correctAnswerIndex
   };
 }
-function from_candid_variant_n11(_uploadFile, _downloadFile, value) {
+function from_candid_variant_n16(_uploadFile, _downloadFile, value) {
   return "admin" in value ? "admin" : "user" in value ? "user" : "guest" in value ? "guest" : value;
 }
-function from_candid_vec_n12(_uploadFile, _downloadFile, value) {
-  return value.map((x2) => from_candid_PaymentRecord_n13(_uploadFile, _downloadFile, x2));
+function from_candid_vec_n11(_uploadFile, _downloadFile, value) {
+  return value.map((x2) => from_candid_UserSubscription_n12(_uploadFile, _downloadFile, x2));
 }
-function from_candid_vec_n5(_uploadFile, _downloadFile, value) {
-  return value.map((x2) => from_candid_Question_n6(_uploadFile, _downloadFile, x2));
+function from_candid_vec_n17(_uploadFile, _downloadFile, value) {
+  return value.map((x2) => from_candid_PaymentRecord_n18(_uploadFile, _downloadFile, x2));
 }
-function to_candid_PaymentRecord_n16(_uploadFile, _downloadFile, value) {
-  return to_candid_record_n17(_uploadFile, _downloadFile, value);
+function from_candid_vec_n7(_uploadFile, _downloadFile, value) {
+  return value.map((x2) => from_candid_Question_n8(_uploadFile, _downloadFile, x2));
 }
-function to_candid_Question_n1(_uploadFile, _downloadFile, value) {
+function to_candid_PaymentRecord_n21(_uploadFile, _downloadFile, value) {
+  return to_candid_record_n22(_uploadFile, _downloadFile, value);
+}
+function to_candid_Question_n3(_uploadFile, _downloadFile, value) {
+  return to_candid_record_n4(_uploadFile, _downloadFile, value);
+}
+function to_candid_UserRole_n5(_uploadFile, _downloadFile, value) {
+  return to_candid_variant_n6(_uploadFile, _downloadFile, value);
+}
+function to_candid_UserSubscription_n1(_uploadFile, _downloadFile, value) {
   return to_candid_record_n2(_uploadFile, _downloadFile, value);
 }
-function to_candid_UserRole_n3(_uploadFile, _downloadFile, value) {
-  return to_candid_variant_n4(_uploadFile, _downloadFile, value);
+function to_candid_record_n2(_uploadFile, _downloadFile, value) {
+  return {
+    status: value.status,
+    userName: value.userName,
+    userEmail: value.userEmail,
+    lastLoginDevice: value.lastLoginDevice,
+    expiryDate: value.expiryDate,
+    userId: value.userId,
+    approvedAt: value.approvedAt ? candid_some(value.approvedAt) : candid_none(),
+    approvedBy: value.approvedBy,
+    rejectedAt: value.rejectedAt ? candid_some(value.rejectedAt) : candid_none(),
+    rejectedBy: value.rejectedBy,
+    deviceId: value.deviceId,
+    paymentRef: value.paymentRef,
+    planType: value.planType,
+    startDate: value.startDate
+  };
 }
-function to_candid_record_n17(_uploadFile, _downloadFile, value) {
+function to_candid_record_n22(_uploadFile, _downloadFile, value) {
   return {
     id: value.id,
     status: value.status,
     userName: value.userName,
     paymentMethod: value.paymentMethod,
+    userEmail: value.userEmail,
     userId: value.userId,
     date: value.date,
     approvedAt: value.approvedAt ? candid_some(value.approvedAt) : candid_none(),
+    approvedBy: value.approvedBy,
     plan: value.plan,
     rejectedAt: value.rejectedAt ? candid_some(value.rejectedAt) : candid_none(),
+    rejectedBy: value.rejectedBy,
     deviceId: value.deviceId ? candid_some(value.deviceId) : candid_none(),
     utrId: value.utrId,
-    amount: value.amount
+    amount: value.amount,
+    planType: value.planType
   };
 }
-function to_candid_record_n2(_uploadFile, _downloadFile, value) {
+function to_candid_record_n4(_uploadFile, _downloadFile, value) {
   return {
     id: value.id,
     topic: value.topic,
@@ -42160,7 +42372,7 @@ function to_candid_record_n2(_uploadFile, _downloadFile, value) {
     correctAnswerIndex: value.correctAnswerIndex
   };
 }
-function to_candid_variant_n4(_uploadFile, _downloadFile, value) {
+function to_candid_variant_n6(_uploadFile, _downloadFile, value) {
   return value == "admin" ? {
     admin: null
   } : value == "user" ? {
@@ -42942,7 +43154,163 @@ function LoginScreen({ onLoginComplete }) {
     ] })
   ] });
 }
+const POLL_MS = 1e4;
+function calcExpiryDate(planType, fromDate) {
+  const base = new Date(fromDate);
+  const lp = planType.toLowerCase();
+  if (lp.includes("year")) {
+    base.setFullYear(base.getFullYear() + 1);
+  } else if (lp.includes("6month") || lp.includes("six") || lp.includes("half")) {
+    base.setMonth(base.getMonth() + 6);
+  } else {
+    base.setMonth(base.getMonth() + 1);
+  }
+  return base.toISOString();
+}
+function usePollingQuery(fetcher, enabled) {
+  const [data, setData] = reactExports.useState(null);
+  const [isLoading, setIsLoading] = reactExports.useState(false);
+  const [error, setError] = reactExports.useState(null);
+  const mountedRef = reactExports.useRef(true);
+  const fetcherRef = reactExports.useRef(fetcher);
+  fetcherRef.current = fetcher;
+  const doFetch = reactExports.useCallback(async () => {
+    if (!mountedRef.current) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await fetcherRef.current();
+      if (mountedRef.current) setData(result);
+    } catch (e) {
+      if (mountedRef.current)
+        setError(
+          e instanceof Error ? e.message : "Unable to connect to server. Retrying..."
+        );
+    } finally {
+      if (mountedRef.current) setIsLoading(false);
+    }
+  }, []);
+  reactExports.useEffect(() => {
+    mountedRef.current = true;
+    if (!enabled) return;
+    doFetch();
+    const id = setInterval(doFetch, POLL_MS);
+    return () => {
+      mountedRef.current = false;
+      clearInterval(id);
+    };
+  }, [enabled, doFetch]);
+  return { data, isLoading, error, refetch: doFetch };
+}
+function usePaymentRecords() {
+  const { actor, isReady } = useActor();
+  const fetcher = reactExports.useCallback(async () => {
+    if (!actor) throw new Error("Unable to connect to server. Retrying...");
+    return actor.getPaymentRecords();
+  }, [actor]);
+  return usePollingQuery(fetcher, !!actor && !!isReady);
+}
+function useAllSubscriptions() {
+  const { actor, isReady } = useActor();
+  const fetcher = reactExports.useCallback(async () => {
+    if (!actor) throw new Error("Unable to connect to server. Retrying...");
+    return actor.getAllSubscriptions();
+  }, [actor]);
+  return usePollingQuery(fetcher, !!actor && !!isReady);
+}
+async function approvePayment(actor, paymentId) {
+  await actor.approvePayment(paymentId, (/* @__PURE__ */ new Date()).toISOString());
+}
+async function rejectPayment(actor, paymentId) {
+  await actor.rejectPayment(paymentId, (/* @__PURE__ */ new Date()).toISOString());
+}
+async function approveSubscription(actor, userId, planType) {
+  const approvedAt = (/* @__PURE__ */ new Date()).toISOString();
+  const expiryDate = calcExpiryDate(planType, approvedAt);
+  await actor.approveSubscription(userId, approvedAt, expiryDate);
+}
+async function rejectSubscription(actor, userId) {
+  await actor.rejectSubscription(userId, (/* @__PURE__ */ new Date()).toISOString());
+}
+const POLL_INTERVAL_MS = 1e4;
 const MANAGEMENT_PASSWORD = "Naeem@#9472";
+function StatusBadge({ status }) {
+  const s2 = status.toLowerCase();
+  const cfg = s2 === "active" || s2 === "approved" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300" : s2 === "pending" ? "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300" : s2 === "rejected" || s2 === "failed" ? "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300" : "bg-muted text-muted-foreground";
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "span",
+    {
+      className: `inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold capitalize ${cfg}`,
+      children: status
+    }
+  );
+}
+function TabBadge({ count }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-1.5 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-primary/15 text-primary text-xs font-bold", children: count });
+}
+function LoadingRows({ cols }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: [1, 2, 3].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: Array.from({ length: cols }).map((_2, j2) => (
+    // biome-ignore lint/suspicious/noArrayIndexKey: skeleton rows
+    /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-4 rounded bg-muted animate-pulse" }) }, j2)
+  )) }, i)) });
+}
+function EmptyState({
+  icon: Icon2,
+  message
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      "data-ocid": "management.empty_state",
+      className: "flex flex-col items-center justify-center py-16 gap-3 text-muted-foreground",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "w-10 h-10 opacity-40" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm font-body", children: message })
+      ]
+    }
+  );
+}
+function ErrorState({
+  message,
+  onRetry
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      "data-ocid": "management.error_state",
+      className: "flex flex-col items-center justify-center py-16 gap-3",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "w-10 h-10 text-destructive opacity-60" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-destructive font-body max-w-sm text-center", children: message }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: onRetry,
+            className: "flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-4 h-4" }),
+              "Retry"
+            ]
+          }
+        )
+      ]
+    }
+  );
+}
+function TableWrapper({ children }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto rounded-xl border border-border", children: /* @__PURE__ */ jsxRuntimeExports.jsx("table", { className: "w-full text-sm", children }) });
+}
+function THead({ headers }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { className: "bg-muted/60", children: headers.map((h2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "th",
+    {
+      className: "px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground whitespace-nowrap",
+      children: h2
+    },
+    h2
+  )) }) });
+}
 function PasswordGate({ onUnlock, onBack }) {
   const [password, setPassword] = reactExports.useState("");
   const [error, setError] = reactExports.useState(false);
@@ -42993,9 +43361,9 @@ function PasswordGate({ onUnlock, onBack }) {
           "p",
           {
             "data-ocid": "management.password.field_error",
-            className: "text-xs text-destructive font-body flex items-center gap-1",
+            className: "text-xs text-destructive font-body flex items-center gap-1 mt-1",
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "w-3.5 h-3.5" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "w-3.5 h-3.5 flex-shrink-0" }),
               "Incorrect password. Please try again."
             ]
           }
@@ -43026,35 +43394,465 @@ function PasswordGate({ onUnlock, onBack }) {
     )
   ] }) });
 }
+function PaymentsTab() {
+  const { actor, isReady } = useActor();
+  const { data: payments, isLoading, error, refetch } = usePaymentRecords();
+  const [actionState, setActionState] = reactExports.useState({});
+  const [filter, setFilter] = reactExports.useState("all");
+  const [lastUpdated, setLastUpdated] = reactExports.useState(null);
+  const intervalRef = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      refetch();
+      setLastUpdated(/* @__PURE__ */ new Date());
+    }, POLL_INTERVAL_MS);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [refetch]);
+  const handleApprove = reactExports.useCallback(
+    async (record) => {
+      if (!actor || !isReady) return;
+      setActionState((s2) => ({ ...s2, [record.id]: "approve" }));
+      try {
+        await approvePayment(actor, record.id);
+        refetch();
+        setLastUpdated(/* @__PURE__ */ new Date());
+      } finally {
+        setActionState((s2) => ({ ...s2, [record.id]: null }));
+      }
+    },
+    [actor, isReady, refetch]
+  );
+  const handleReject = reactExports.useCallback(
+    async (record) => {
+      if (!actor || !isReady) return;
+      setActionState((s2) => ({ ...s2, [record.id]: "reject" }));
+      try {
+        await rejectPayment(actor, record.id);
+        refetch();
+        setLastUpdated(/* @__PURE__ */ new Date());
+      } finally {
+        setActionState((s2) => ({ ...s2, [record.id]: null }));
+      }
+    },
+    [actor, isReady, refetch]
+  );
+  const filtered = payments ? payments.filter(
+    (r2) => filter === "all" || r2.status.toLowerCase() === filter
+  ) : null;
+  const filterLabels = [
+    { key: "all", label: "All" },
+    { key: "pending", label: "Pending" },
+    { key: "approved", label: "Approved" },
+    { key: "rejected", label: "Rejected" }
+  ];
+  const headers = [
+    "#",
+    "Name",
+    "UTR / ID",
+    "Amount",
+    "Date",
+    "Status",
+    "Actions"
+  ];
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { "data-ocid": "management.payments.panel", className: "space-y-4", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-2 flex-wrap", children: filterLabels.map(({ key, label }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          type: "button",
+          "data-ocid": `management.payments.filter.${key}`,
+          onClick: () => setFilter(key),
+          className: `px-3 py-1 text-xs font-semibold rounded-full transition-colors ${filter === key ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`,
+          children: [
+            label,
+            payments && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-1 opacity-70", children: [
+              "(",
+              key === "all" ? payments.length : payments.filter((r2) => r2.status.toLowerCase() === key).length,
+              ")"
+            ] })
+          ]
+        },
+        key
+      )) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+        lastUpdated && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground", children: [
+          "Updated ",
+          lastUpdated.toLocaleTimeString("en-IN")
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => {
+              refetch();
+              setLastUpdated(/* @__PURE__ */ new Date());
+            },
+            "aria-label": "Refresh payments",
+            className: "p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-4 h-4" })
+          }
+        )
+      ] })
+    ] }),
+    error ? /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorState, { message: error, onRetry: refetch }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(TableWrapper, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(THead, { headers }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { className: "divide-y divide-border", children: isLoading && !payments ? /* @__PURE__ */ jsxRuntimeExports.jsx(LoadingRows, { cols: headers.length }) : !filtered || filtered.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: headers.length, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        EmptyState,
+        {
+          icon: CreditCard,
+          message: "No payment records found"
+        }
+      ) }) }) : filtered.map((rec, idx) => {
+        var _a3;
+        const acting = actionState[rec.id];
+        const isPending = rec.status.toLowerCase() === "pending";
+        const isApproved = rec.status.toLowerCase() === "approved";
+        const isRejected = rec.status.toLowerCase() === "rejected";
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(React$2.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "tr",
+            {
+              "data-ocid": `management.payments.item.${idx + 1}`,
+              className: "hover:bg-muted/30 transition-colors",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-muted-foreground tabular-nums", children: idx + 1 }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "px-4 py-3 font-medium text-foreground whitespace-nowrap", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: rec.userName || "—" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-muted-foreground", children: ((_a3 = rec.userId) == null ? void 0 : _a3.slice(0, 16)) ?? "" })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 font-mono text-xs text-foreground", children: rec.utrId || `${rec.id.slice(0, 12)}…` }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 whitespace-nowrap", children: rec.amount ? `₹${rec.amount}` : "—" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 whitespace-nowrap text-muted-foreground text-xs", children: rec.date ? new Date(rec.date).toLocaleDateString("en-IN") : "—" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(StatusBadge, { status: rec.status }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3", children: isPending ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "button",
+                    {
+                      type: "button",
+                      "data-ocid": `management.payments.approve_button.${idx + 1}`,
+                      onClick: () => handleApprove(rec),
+                      disabled: !!acting,
+                      className: "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 transition-colors",
+                      children: [
+                        acting === "approve" ? /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "w-3.5 h-3.5 animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheckBig, { className: "w-3.5 h-3.5" }),
+                        "Approve"
+                      ]
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "button",
+                    {
+                      type: "button",
+                      "data-ocid": `management.payments.reject_button.${idx + 1}`,
+                      onClick: () => handleReject(rec),
+                      disabled: !!acting,
+                      className: "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 transition-colors",
+                      children: [
+                        acting === "reject" ? /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "w-3.5 h-3.5 animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(CircleX, { className: "w-3.5 h-3.5" }),
+                        "Reject"
+                      ]
+                    }
+                  )
+                ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground", children: "—" }) })
+              ]
+            }
+          ),
+          (isApproved || isRejected) && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { className: "bg-muted/20", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "td",
+            {
+              colSpan: headers.length,
+              className: "px-4 py-1.5 text-xs text-muted-foreground italic",
+              children: isApproved ? `✓ Approved by admin${rec.approvedAt ? ` at ${new Date(rec.approvedAt).toLocaleString("en-IN")}` : ""}` : `✗ Rejected by admin${rec.rejectedAt ? ` at ${new Date(rec.rejectedAt).toLocaleString("en-IN")}` : ""}`
+            }
+          ) })
+        ] }, rec.id);
+      }) })
+    ] })
+  ] });
+}
+function SubscriptionsTab() {
+  const { actor, isReady } = useActor();
+  const { data: subs, isLoading, error, refetch } = useAllSubscriptions();
+  const [actionState, setActionState] = reactExports.useState({});
+  const [filter, setFilter] = reactExports.useState("all");
+  const [lastUpdated, setLastUpdated] = reactExports.useState(null);
+  const intervalRef = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      refetch();
+      setLastUpdated(/* @__PURE__ */ new Date());
+    }, POLL_INTERVAL_MS);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [refetch]);
+  const handleApprove = reactExports.useCallback(
+    async (sub) => {
+      if (!actor || !isReady) return;
+      setActionState((s2) => ({ ...s2, [sub.userId]: "approve" }));
+      try {
+        await approveSubscription(actor, sub.userId, sub.planType);
+        refetch();
+        setLastUpdated(/* @__PURE__ */ new Date());
+      } finally {
+        setActionState((s2) => ({ ...s2, [sub.userId]: null }));
+      }
+    },
+    [actor, isReady, refetch]
+  );
+  const handleReject = reactExports.useCallback(
+    async (sub) => {
+      if (!actor || !isReady) return;
+      setActionState((s2) => ({ ...s2, [sub.userId]: "reject" }));
+      try {
+        await rejectSubscription(actor, sub.userId);
+        refetch();
+        setLastUpdated(/* @__PURE__ */ new Date());
+      } finally {
+        setActionState((s2) => ({ ...s2, [sub.userId]: null }));
+      }
+    },
+    [actor, isReady, refetch]
+  );
+  const handleCancel = reactExports.useCallback(
+    async (sub) => {
+      if (!actor || !isReady) return;
+      setActionState((s2) => ({ ...s2, [sub.userId]: "cancel" }));
+      try {
+        await rejectSubscription(actor, sub.userId);
+        refetch();
+        setLastUpdated(/* @__PURE__ */ new Date());
+      } finally {
+        setActionState((s2) => ({ ...s2, [sub.userId]: null }));
+      }
+    },
+    [actor, isReady, refetch]
+  );
+  const filtered = subs ? subs.filter((s2) => filter === "all" || s2.status.toLowerCase() === filter) : null;
+  const filterLabels = [
+    { key: "all", label: "All" },
+    { key: "pending", label: "Pending" },
+    { key: "active", label: "Active" },
+    { key: "rejected", label: "Rejected" },
+    { key: "expired", label: "Expired" }
+  ];
+  const headers = [
+    "#",
+    "User Name",
+    "Device / Email",
+    "Plan",
+    "Status",
+    "Start Date",
+    "Expiry Date",
+    "Actions"
+  ];
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { "data-ocid": "management.subscriptions.panel", className: "space-y-4", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-2 flex-wrap", children: filterLabels.map(({ key, label }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          type: "button",
+          "data-ocid": `management.subscriptions.filter.${key}`,
+          onClick: () => setFilter(key),
+          className: `px-3 py-1 text-xs font-semibold rounded-full transition-colors ${filter === key ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`,
+          children: [
+            label,
+            subs && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-1 opacity-70", children: [
+              "(",
+              key === "all" ? subs.length : subs.filter((s2) => s2.status.toLowerCase() === key).length,
+              ")"
+            ] })
+          ]
+        },
+        key
+      )) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+        lastUpdated && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground", children: [
+          "Updated ",
+          lastUpdated.toLocaleTimeString("en-IN")
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => {
+              refetch();
+              setLastUpdated(/* @__PURE__ */ new Date());
+            },
+            "aria-label": "Refresh subscriptions",
+            className: "p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-4 h-4" })
+          }
+        )
+      ] })
+    ] }),
+    error ? /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorState, { message: error, onRetry: refetch }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(TableWrapper, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(THead, { headers }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { className: "divide-y divide-border", children: isLoading && !subs ? /* @__PURE__ */ jsxRuntimeExports.jsx(LoadingRows, { cols: headers.length }) : !filtered || filtered.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: headers.length, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        EmptyState,
+        {
+          icon: UserCheck,
+          message: "No subscription records found"
+        }
+      ) }) }) : filtered.map((sub, idx) => {
+        var _a3;
+        const acting = actionState[sub.userId];
+        const st2 = sub.status.toLowerCase();
+        const isPending = st2 === "pending";
+        const isActive = st2 === "active";
+        const isRejected = st2 === "rejected" || st2 === "cancelled";
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(React$2.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "tr",
+            {
+              "data-ocid": `management.subscriptions.item.${idx + 1}`,
+              className: "hover:bg-muted/30 transition-colors",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-muted-foreground tabular-nums", children: idx + 1 }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "px-4 py-3 font-medium text-foreground whitespace-nowrap", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: sub.userName || `${sub.userId.slice(0, 12)}…` }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-muted-foreground font-mono", children: (_a3 = sub.userId) == null ? void 0 : _a3.slice(0, 16) })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-sm text-muted-foreground truncate max-w-[140px]", children: sub.deviceId || "—" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-muted-foreground capitalize", children: sub.planType || "—" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(StatusBadge, { status: sub.status }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-xs text-muted-foreground whitespace-nowrap", children: sub.startDate ? new Date(sub.startDate).toLocaleDateString("en-IN") : "—" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-xs text-muted-foreground whitespace-nowrap", children: sub.expiryDate ? new Date(sub.expiryDate).toLocaleDateString("en-IN") : "—" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3", children: isPending ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "button",
+                    {
+                      type: "button",
+                      "data-ocid": `management.subscriptions.approve_button.${idx + 1}`,
+                      onClick: () => handleApprove(sub),
+                      disabled: !!acting,
+                      className: "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 transition-colors",
+                      children: [
+                        acting === "approve" ? /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "w-3.5 h-3.5 animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheckBig, { className: "w-3.5 h-3.5" }),
+                        "Approve"
+                      ]
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "button",
+                    {
+                      type: "button",
+                      "data-ocid": `management.subscriptions.reject_button.${idx + 1}`,
+                      onClick: () => handleReject(sub),
+                      disabled: !!acting,
+                      className: "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 transition-colors",
+                      children: [
+                        acting === "reject" ? /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "w-3.5 h-3.5 animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(CircleX, { className: "w-3.5 h-3.5" }),
+                        "Reject"
+                      ]
+                    }
+                  )
+                ] }) : isActive ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "button",
+                  {
+                    type: "button",
+                    "data-ocid": `management.subscriptions.cancel_button.${idx + 1}`,
+                    onClick: () => handleCancel(sub),
+                    disabled: !!acting,
+                    className: "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 disabled:opacity-50 transition-colors",
+                    children: [
+                      acting === "cancel" ? /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "w-3.5 h-3.5 animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(CircleX, { className: "w-3.5 h-3.5" }),
+                      "Cancel"
+                    ]
+                  }
+                ) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground", children: "—" }) })
+              ]
+            }
+          ),
+          (isActive || isRejected) && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { className: "bg-muted/20", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "td",
+            {
+              colSpan: headers.length,
+              className: "px-4 py-1.5 text-xs text-muted-foreground italic",
+              children: isActive ? `✓ Active — expires ${sub.expiryDate ? new Date(sub.expiryDate).toLocaleDateString("en-IN") : "N/A"}` : "✗ Rejected / cancelled"
+            }
+          ) })
+        ] }, sub.userId);
+      }) })
+    ] })
+  ] });
+}
+function ManagementDashboard({ onBack }) {
+  const [activeTab, setActiveTab] = reactExports.useState("payments");
+  const { data: payments } = usePaymentRecords();
+  const { data: subs } = useAllSubscriptions();
+  const pendingPayments = (payments == null ? void 0 : payments.filter((p2) => p2.status.toLowerCase() === "pending").length) ?? 0;
+  const pendingSubs = (subs == null ? void 0 : subs.filter((s2) => s2.status.toLowerCase() === "pending").length) ?? 0;
+  const tabs = [
+    {
+      id: "payments",
+      label: "Payments",
+      icon: CreditCard,
+      count: (payments == null ? void 0 : payments.length) ?? 0,
+      pending: pendingPayments
+    },
+    {
+      id: "subscriptions",
+      label: "Subscriptions",
+      icon: ClipboardList,
+      count: (subs == null ? void 0 : subs.length) ?? 0,
+      pending: pendingSubs
+    }
+  ];
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col min-h-screen bg-background", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-card border-b border-border sticky top-0 z-30 shadow-sm", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-w-5xl mx-auto px-4 py-3 flex items-center gap-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            "data-ocid": "management.back_button",
+            onClick: onBack,
+            "aria-label": "Back to Home",
+            className: "w-9 h-9 flex items-center justify-center rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary/40",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { className: "w-5 h-5 text-foreground" })
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-base font-bold text-foreground font-heading truncate", children: "Management" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground font-body", children: "AIAPGET Unani PYQ · Admin Dashboard" })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "max-w-5xl mx-auto px-4 flex gap-1 overflow-x-auto scrollbar-none pb-px", children: tabs.map((tab) => {
+        const Icon2 = tab.icon;
+        const isActive = activeTab === tab.id;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            "data-ocid": `management.${tab.id}.tab`,
+            onClick: () => setActiveTab(tab.id),
+            className: `flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors ${isActive ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`,
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "w-4 h-4" }),
+              tab.label,
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TabBadge, { count: tab.count }),
+              tab.pending > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-0.5 inline-flex items-center justify-center min-w-[1.1rem] h-4 px-1 rounded-full bg-amber-500 text-white text-[10px] font-bold", children: tab.pending })
+            ]
+          },
+          tab.id
+        );
+      }) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 max-w-5xl mx-auto w-full px-4 py-6", children: [
+      activeTab === "payments" && /* @__PURE__ */ jsxRuntimeExports.jsx(PaymentsTab, {}),
+      activeTab === "subscriptions" && /* @__PURE__ */ jsxRuntimeExports.jsx(SubscriptionsTab, {})
+    ] })
+  ] });
+}
 function ManagementScreen({ onBack }) {
   const [unlocked, setUnlocked] = reactExports.useState(false);
   if (!unlocked) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(PasswordGate, { onUnlock: () => setUnlocked(true), onBack });
   }
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col min-h-screen bg-background", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-card border-b border-border sticky top-0 z-30 shadow-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-w-5xl mx-auto px-4 py-3 flex items-center gap-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          type: "button",
-          "data-ocid": "management.back_button",
-          onClick: onBack,
-          "aria-label": "Back to Home",
-          className: "w-9 h-9 flex items-center justify-center rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary/40",
-          children: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { className: "w-5 h-5 text-foreground" })
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-base font-bold text-foreground font-heading truncate", children: "Management" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground font-body", children: "AIAPGET Unani PYQ · Admin Panel" })
-      ] })
-    ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 max-w-5xl mx-auto w-full px-4 py-12 flex flex-col items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { "data-ocid": "management.panel", className: "text-center space-y-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-14 h-14 rounded-full bg-muted flex items-center justify-center mx-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "w-7 h-7 text-muted-foreground" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-base font-semibold text-foreground font-heading", children: "Management page — no sections configured." }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground font-body", children: "No management features are currently enabled." })
-    ] }) })
-  ] });
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(ManagementDashboard, { onBack });
 }
 const sections = [
   {

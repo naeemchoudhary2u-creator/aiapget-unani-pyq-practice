@@ -1,6 +1,6 @@
 // ── Domain types used across frontend hooks and pages ────────────────────────
-// These are defined locally since the backend interface has no generated methods.
-// All data operations use localStorage as primary store.
+// PaymentRecord and UserSubscription are imported from "../backend" (generated).
+// Types here are supplementary domain types used in the frontend only.
 
 export interface BackendQuestion {
   id: bigint;
